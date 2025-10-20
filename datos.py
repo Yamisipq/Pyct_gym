@@ -19,8 +19,14 @@ def inicializar_archivo(filepath: str) -> None:
     """
     Verifica si un archivo de datos existe. Si no, lo crea con las cabeceras.
 
-    Args:
-        filepath (str): La ruta completa al archivo de datos.
+    Asegura que el directorio exista y, si el archivo no existe:
+    - Para CSV: lo crea con las cabeceras correspondientes a Miembros o Clases.
+    - Para JSON: lo crea como una lista vacía `[]`.
+
+    :param filepath: La ruta completa al archivo de datos (ej. 'data/miembros.csv').
+    :type filepath: str
+    :return: None
+    :rtype: None
     """
     directorio = os.path.dirname(filepath)
     if directorio and not os.path.exists(directorio):
@@ -46,6 +52,14 @@ def inicializar_archivo(filepath: str) -> None:
 def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
     """
     Carga los datos desde un archivo (CSV o JSON) y los retorna como una lista de diccionarios.
+
+    Asegura la inicialización del archivo antes de intentar la lectura.
+    Retorna una lista vacía `[]` si el archivo no existe o está vacío/corrupto.
+
+    :param filepath: La ruta completa al archivo de datos.
+    :type filepath: str
+    :return: Lista de diccionarios que representan los datos cargados.
+    :rtype: List[Dict[str, Any]]
     """
     inicializar_archivo(filepath)
 
@@ -60,11 +74,19 @@ def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
                 datos = json.load(json_file)
                 return datos if isinstance(datos, list) else []
     except (FileNotFoundError, json.JSONDecodeError):
+        # Captura errores comunes de lectura y retorna lista vacía
         return []
 
 def guardar_datos(filepath: str, datos: List[Dict[str, Any]]) -> None:
     """
     Guarda una lista de diccionarios en un archivo (CSV o JSON), sobrescribiendo el contenido.
+
+    :param filepath: La ruta completa al archivo de datos.
+    :type filepath: str
+    :param datos: La lista de diccionarios (datos de Miembros, Clases o Inscripciones) a guardar.
+    :type datos: List[Dict[str, Any]]
+    :return: None
+    :rtype: None
     """
     # Determinamos los campos según el nombre del archivo (solo necesario para CSV)
     campos = []

@@ -11,8 +11,12 @@ import crud
 
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Confirm, IntPrompt, Prompt
+from rich.prompt import IntPrompt, Prompt
 from rich.table import Table
+from typing import Optional
+
+from crud import actualizar_miembro, eliminar_miembro, dar_baja_miembro_de_clase, \
+    menu_listar_clases_inscritas_por_miembro
 
 console = Console()
 
@@ -24,20 +28,27 @@ NOMBRE_ARCHIVO_INSCRIPCIONES = 'inscripciones.json' # Corregido
 
 # --- Funciones de Interfaz de Usuario con Rich (Miembros) ---
 
-def solicitar_tipo_suscripcion(permitir_vacio: bool = False) -> str | None:
-    """ Muestra un menú para que el usuario elija el tipo de suscripción. """
+def solicitar_tipo_suscripcion(permitir_vacio: bool = False) -> Optional[str]:
+    """
+    Muestra un menú para que el usuario elija el tipo de suscripción.
+
+    :param permitir_vacio: Si es True, incluye la opción '0. No cambiar' (útil para actualizaciones).
+    :type permitir_vacio: bool
+    :return: El tipo de suscripción seleccionado (ej. 'Mensual'), None si se elige 'No cambiar', o None en caso de error.
+    :rtype: Optional[str]
+    """
     console.print("\nSeleccione el tipo de suscripción:", style="cyan")
 
     tipos = {
-        '1': 'Mensual', '2': 'Anual', '3': 'Trimestral'
+        '1': 'Mensual', '2': 'Anual'
     }
 
     opciones = list(tipos.keys())
     for key, value in tipos.items():
-        console.print(f"[bold yellow]{key}[/bold yellow]. {value}")
+        console.print(f"{key}. {value}")
 
     if permitir_vacio:
-        console.print("[bold yellow]0[/bold yellow]. No cambiar")
+        console.print("0. No cambiar")
         opciones.insert(0, '0')
 
     opcion = Prompt.ask("Opción", choices=opciones, show_choices=False)
@@ -48,8 +59,18 @@ def solicitar_tipo_suscripcion(permitir_vacio: bool = False) -> str | None:
 
 
 def menu_crear_miembro(filepath: str):
-    """Maneja la lógica para registrar un nuevo miembro."""
-    console.print(Panel.fit("[bold cyan]📝 Registrar Nuevo Miembro[/bold cyan]"))
+    """
+    Maneja la lógica para registrar un nuevo miembro.
+
+    Solicita al usuario el nombre y el tipo de suscripción, llama a la función
+    CRUD de creación y muestra el resultado (incluyendo el ID asignado).
+
+    :param filepath: Ruta del archivo de miembros.
+    :type filepath: str
+    :return: None
+    :rtype: None
+    """
+    console.print(Panel.fit("Registrar Nuevo Miembro"))
 
     tipo_suscripcion = solicitar_tipo_suscripcion()
     nombre = Prompt.ask("Nombre completo del Miembro")
@@ -59,20 +80,29 @@ def menu_crear_miembro(filepath: str):
     )
 
     if miembro_creado:
-        console.print(Panel(f"✅ ¡Miembro registrado con éxito!\n   ID Asignado: [bold yellow]{miembro_creado['id_miembro']}[/bold yellow]",
+        console.print(Panel(f"¡Miembro registrado con éxito!\n   ID Asignado: {miembro_creado['id_miembro']}",
                             border_style="green", title="Éxito"))
     else:
-        console.print(Panel("⚠️ No se pudo registrar al miembro.",
+        console.print(Panel("No se pudo registrar al miembro.",
                             border_style="red", title="Error"))
 
 
 def menu_leer_miembros(filepath: str):
-    """Maneja la lógica para mostrar todos los miembros en una tabla."""
-    console.print(Panel.fit("[bold cyan]👥 Lista de Miembros[/bold cyan]"))
+    """
+    Maneja la lógica para mostrar todos los miembros en una tabla.
+
+    Carga todos los miembros y los presenta en una tabla formateada con rich.
+
+    :param filepath: Ruta del archivo de miembros.
+    :type filepath: str
+    :return: None
+    :rtype: None
+    """
+    console.print(Panel.fit("Lista de Miembros"))
     miembros = crud.leer_todos_los_miembros(filepath)
 
     if not miembros:
-        console.print("[yellow]No hay miembros registrados.[/yellow]")
+        console.print("No hay miembros registrados.")
         return
 
     tabla = Table(title="Miembros Registrados", border_style="blue", show_header=True, header_style="bold magenta")
@@ -96,38 +126,55 @@ def menu_leer_miembros(filepath: str):
 # --- Funciones de Interfaz de Usuario con Rich (Clases) ---
 
 def menu_crear_clase(filepath: str):
-    """Maneja la lógica para registrar una nueva clase."""
-    console.print(Panel.fit("[bold cyan]➕ Registrar Nueva Clase[/bold cyan]"))
+    """
+    Maneja la lógica para registrar una nueva clase.
+
+    Solicita al usuario los datos de la clase (nombre, instructor, cupo),
+    llama a la función CRUD de creación y muestra el resultado.
+
+    :param filepath: Ruta del archivo de clases.
+    :type filepath: str
+    :return: None
+    :rtype: None
+    """
+    console.print(Panel.fit(" Registrar Nueva Clase"))
 
     nombre_clase = Prompt.ask("Nombre de la Clase")
     instructor = Prompt.ask("Instructor")
-    horario = Prompt.ask("Horario (ej. L-M-V 18:00)")
     cupo_maximo = IntPrompt.ask("Cupo Máximo", default=10)
 
     clase_creada = crud.crear_clase(
-        filepath, nombre_clase, instructor, horario, cupo_maximo
+        filepath, nombre_clase, instructor, cupo_maximo
     )
 
     if clase_creada:
-        console.print(Panel(f"✅ ¡Clase registrada con éxito!\n   ID Asignado: [bold yellow]{clase_creada['id_clase']}[/bold yellow]",
+        console.print(Panel(f"¡Clase registrada con éxito!\n   ID Asignado: {clase_creada['id_clase']}",
                             border_style="green", title="Éxito"))
     else:
-        console.print(Panel("⚠️ No se pudo registrar la clase.", border_style="red", title="Error"))
+        console.print(Panel("No se pudo registrar la clase.", border_style="red", title="Error"))
 
 def menu_leer_clases(filepath: str):
-    """Maneja la lógica para mostrar todas las clases en una tabla."""
-    console.print(Panel.fit("[bold cyan]📋 Lista de Clases Disponibles[/bold cyan]"))
+    """
+    Maneja la lógica para mostrar todas las clases en una tabla.
+
+    Carga todas las clases y las presenta en una tabla formateada con rich.
+
+    :param filepath: Ruta del archivo de clases.
+    :type filepath: str
+    :return: None
+    :rtype: None
+    """
+    console.print(Panel.fit("Lista de Clases Disponibles"))
     clases = crud.leer_todas_las_clases(filepath)
 
     if not clases:
-        console.print("[yellow]No hay clases registradas.[/yellow]")
+        console.print("No hay clases registradas.")
         return
 
     tabla = Table(title="Clases Registradas", border_style="blue", show_header=True, header_style="bold magenta")
     tabla.add_column("ID", style="dim", width=5)
     tabla.add_column("Clase")
     tabla.add_column("Instructor")
-    tabla.add_column("Horario")
     tabla.add_column("Cupo Máx.", justify="center")
 
     for c in clases:
@@ -135,7 +182,6 @@ def menu_leer_clases(filepath: str):
             c.get('id_clase', 'N/D'),
             c.get('nombre_clase', 'N/D'),
             c.get('instructor', 'N/D'),
-            c.get('horario', 'N/D'),
             c.get('cupo_maximo', 'N/D'),
         )
 
@@ -144,8 +190,20 @@ def menu_leer_clases(filepath: str):
 # --- Funciones de Interfaz de Usuario con Rich (Inscripciones) ---
 
 def menu_inscribir_miembro(filepath_i: str, filepath_c: str):
-    """Maneja la lógica para inscribir un miembro en una clase."""
-    console.print(Panel.fit("[bold cyan]➡️ Inscribir Miembro en Clase[/bold cyan]"))
+    """
+    Maneja la lógica para inscribir un miembro en una clase.
+
+    Solicita los IDs de miembro y clase, llama a la función CRUD de inscripción
+    y muestra el resultado de la operación (éxito o error de validación/cupo).
+
+    :param filepath_i: Ruta del archivo de inscripciones.
+    :type filepath_i: str
+    :param filepath_c: Ruta del archivo de clases (necesario para validaciones de cupo).
+    :type filepath_c: str
+    :return: None
+    :rtype: None
+    """
+    console.print(Panel.fit("Inscribir Miembro en Clase"))
 
     # Se asume que el usuario conoce los IDs, si no, se debería listar primero.
     id_miembro = Prompt.ask("Ingrese el ID del Miembro")
@@ -161,14 +219,26 @@ def menu_inscribir_miembro(filepath_i: str, filepath_c: str):
         console.print(Panel(mensaje, border_style="red", title="Error"))
 
 def menu_mostrar_miembros_inscritos(filepath_i: str, filepath_m: str):
-    """Muestra los miembros inscritos en una clase específica."""
-    console.print(Panel.fit("[bold cyan]👀 Miembros Inscritos por Clase[/bold cyan]"))
+    """
+    Muestra los miembros inscritos en una clase específica.
+
+    Solicita el ID de la clase, recupera la lista de miembros inscritos
+    y la presenta en una tabla.
+
+    :param filepath_i: Ruta del archivo de inscripciones.
+    :type filepath_i: str
+    :param filepath_m: Ruta del archivo de miembros (necesario para obtener los detalles de los miembros).
+    :type filepath_m: str
+    :return: None
+    :rtype: None
+    """
+    console.print(Panel.fit("Miembros Inscritos por Clase"))
     id_clase = Prompt.ask("Ingrese el ID de la Clase")
 
     miembros = crud.listar_miembros_inscritos_en_clase(filepath_i, filepath_m, id_clase)
 
     if not miembros:
-        console.print(f"No hay miembros inscritos en la clase {id_clase}.")
+        console.print(f"No hay miembros inscritos en la clase ID '{id_clase}'.")
         return
 
     tabla = Table(title=f"Miembros Inscritos en Clase ID {id_clase}", border_style="blue", show_header=True, header_style="bold magenta")
@@ -186,7 +256,14 @@ def menu_mostrar_miembros_inscritos(filepath_i: str, filepath_m: str):
 # --- Menús Principales ---
 
 def mostrar_menu_principal():
-    """Imprime el menú principal en la consola."""
+    """
+    Imprime el menú principal de la aplicación en la consola.
+
+    Utiliza un Panel de rich para mejorar la presentación del menú de opciones.
+
+    :return: None
+    :rtype: None
+    """
     menu_texto = (
         "-- GESTIÓN DE MIEMBROS --\n"
         "1.Registrar nuevo miembro\n"
@@ -203,20 +280,29 @@ def mostrar_menu_principal():
         "10.Mostrar clases de un miembro\n\n"
         "0.Salir"
     )
-    console.print(Panel(menu_texto, title="[bold]SISTEMA DE GESTIÓN DE GIMNASIO[/bold]", subtitle="Seleccione una opción", border_style="green"))
+    console.print(Panel(menu_texto, title="SISTEMA DE GESTIÓN DE GIMNASIO", subtitle="Seleccione una opción", border_style="green"))
 
 def main():
-    """Función principal que ejecuta el bucle del menú."""
+    """
+    Función principal que ejecuta el bucle del menú.
+
+    Inicializa el directorio de datos, define las rutas de los archivos
+    y maneja la navegación del menú principal, llamando a las funciones
+    de UI correspondientes a cada opción.
+
+    :return: None
+    :rtype: None
+    """
     if not os.path.exists(DIRECTORIO_DATOS):
         os.makedirs(DIRECTORIO_DATOS)
-        console.print(f"[green]Directorio '{DIRECTORIO_DATOS}' creado.[/green]")
+        console.print(f"Directorio '{DIRECTORIO_DATOS}' creado.")
 
     # Rutas de archivos fijas para el sistema
     path_miembros = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_MIEMBROS)
     path_clases = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_CLASES)
     path_inscripciones = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_INSCRIPCIONES)
 
-    console.print(f"\n👍 Sistema de datos inicializado en [bold green]{DIRECTORIO_DATOS}[/bold green].")
+    console.print(f"\nSistema de datos inicializado en {DIRECTORIO_DATOS}.")
 
     while True:
         mostrar_menu_principal()
@@ -226,7 +312,10 @@ def main():
             menu_crear_miembro(path_miembros)
         elif opcion == '2':
             menu_leer_miembros(path_miembros)
-        # Opciones 3 y 4 (Actualizar/Eliminar Miembro) requerirían la implementación completa en crud.py y main.py
+        elif opcion == '3':
+            actualizar_miembro(path_miembros)
+        elif opcion == '4':
+            eliminar_miembro(path_miembros)
 
         elif opcion == '5':
             menu_crear_clase(path_clases)
@@ -237,18 +326,19 @@ def main():
             menu_inscribir_miembro(path_inscripciones, path_clases)
         elif opcion == '8':
             menu_mostrar_miembros_inscritos(path_inscripciones, path_miembros)
-        # Opciones 9 y 10 (Dar de baja / Clases por miembro) requerirían la implementación de su UI.
+        elif opcion == '9':
+            dar_baja_miembro_de_clase(path_clases)
+        elif opcion == '10':
+            menu_listar_clases_inscritas_por_miembro(path_inscripciones, path_clases)
 
         elif opcion == '0':
-            console.print("\n[bold magenta]👋 ¡Hasta luego! Gracias por usar la gestión de gimnasio.[/bold magenta]")
+            console.print("\n¡Hasta luego! Gracias por usar la gestión de gimnasio.")
             break
 
-        # Pausa para volver al menú
         Prompt.ask("\nPresione Enter para continuar...", default="", show_default=False)
 
-# --- Punto de Entrada del Script ---
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        console.print("\n\n[bold red]Programa interrumpido por el usuario. Adiós.[/bold red]")
+        console.print("\nPrograma interrumpido por el usuario. Adiós.")
