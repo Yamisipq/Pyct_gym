@@ -14,8 +14,8 @@ estas clases.
 
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tuusuario/tu-repo.git
-   cd tu-repo
+   git clone (https://github.com/Yamisipq/Pyct_gym.git)
+   cd Pyct_gym
    python -m venv .venv
    .venv\Scripts\activate
 
