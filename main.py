@@ -16,7 +16,7 @@ from rich.table import Table
 from typing import Optional
 
 from crud import actualizar_miembro, eliminar_miembro, dar_baja_miembro_de_clase, \
-    menu_listar_clases_inscritas_por_miembro
+    listar_clases_inscritas_por_miembro
 
 console = Console()
 
@@ -137,21 +137,21 @@ def menu_crear_clase(filepath: str):
     :return: None
     :rtype: None
     """
-    console.print(Panel.fit(" Registrar Nueva Clase"))
-
+    console.print(Panel.fit("Registrar Nueva Clase"))
     nombre_clase = Prompt.ask("Nombre de la Clase")
     instructor = Prompt.ask("Instructor")
     cupo_maximo = IntPrompt.ask("Cupo Máximo", default=10)
 
-    clase_creada = crud.crear_clase(
-        filepath, nombre_clase, instructor, cupo_maximo
-    )
+    clase_creada = crud.crear_clase(filepath, nombre_clase, instructor, cupo_maximo)
 
     if clase_creada:
-        console.print(Panel(f"¡Clase registrada con éxito!\n   ID Asignado: {clase_creada['id_clase']}",
-                            border_style="green", title="Éxito"))
+        console.print(Panel(
+            f"¡Clase registrada con éxito!\nID Asignado: {clase_creada['id_clase']}",
+            border_style="green", title="Éxito"
+        ))
     else:
         console.print(Panel("No se pudo registrar la clase.", border_style="red", title="Error"))
+
 
 def menu_leer_clases(filepath: str):
     """
@@ -327,9 +327,41 @@ def main():
         elif opcion == '8':
             menu_mostrar_miembros_inscritos(path_inscripciones, path_miembros)
         elif opcion == '9':
-            dar_baja_miembro_de_clase(path_clases)
+            id_miembro = Prompt.ask("Ingrese el ID del miembro")
+            id_clase = Prompt.ask("Ingrese el ID de la clase")
+
+            exito = dar_baja_miembro_de_clase(path_inscripciones, id_miembro, id_clase)
+
+            if exito:
+                console.print(Panel("Miembro dado de baja exitosamente.", border_style="green", title="Éxito"))
+            else:
+                console.print(Panel("No se encontró inscripción con esos datos.", border_style="red", title="Error"))
+
         elif opcion == '10':
-            menu_listar_clases_inscritas_por_miembro(path_inscripciones, path_clases)
+            console.print(Panel.fit("Clases de un Miembro"))
+            id_miembro = Prompt.ask("Ingrese el ID del miembro")
+
+            clases = listar_clases_inscritas_por_miembro(path_inscripciones, path_clases, id_miembro)
+
+            if not clases:
+                console.print(f"El miembro ID {id_miembro} no está inscrito en ninguna clase.")
+            else:
+                tabla = Table(title=f"Clases de Miembro ID {id_miembro}", border_style="blue", show_header=True,
+                              header_style="bold magenta")
+                tabla.add_column("ID Clase", style="dim", width=10)
+                tabla.add_column("Clase")
+                tabla.add_column("Instructor")
+                tabla.add_column("Horario")
+
+                for c in clases:
+                    tabla.add_row(
+                        c.get('id_clase', 'N/D'),
+                        c.get('nombre_clase', 'N/D'),
+                        c.get('instructor', 'N/D'),
+                        c.get('horario', 'N/D')
+                    )
+
+                console.print(tabla)
 
         elif opcion == '0':
             console.print("\n¡Hasta luego! Gracias por usar la gestión de gimnasio.")

@@ -26,3 +26,4 @@ estas clases.
 - [Yamith Rosas](https://github.com/Yamisipq)
 - [Marlon Rodriguez](https://github.com/tuusuario)
 - [Carlos Medina](https://github.com/tuusuario)
+- [Daniel Caceres](https://github.com/tuusuario)

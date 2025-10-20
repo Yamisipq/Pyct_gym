@@ -177,7 +177,6 @@ def crear_clase(
         filepath: str,
         nombre_clase: str,
         instructor: str,
-        horario: str,
         cupo_maximo: int,
 ) -> Optional[Dict[str, Any]]:
     """
@@ -192,8 +191,6 @@ def crear_clase(
     :type nombre_clase: str
     :param instructor: Nombre del instructor a cargo de la clase.
     :type instructor: str
-    :param horario: Horario de la clase (ej. 'Lunes 18:00').
-    :type horario: str
     :param cupo_maximo: Número máximo de participantes permitidos.
     :type cupo_maximo: int
     :return: El diccionario de la clase recién creada o None si falla la operación.
@@ -207,7 +204,6 @@ def crear_clase(
         'id_clase': nuevo_id,
         'nombre_clase': nombre_clase,
         'instructor': instructor,
-        'horario': horario,
         'cupo_maximo': str(cupo_maximo),  # Guardar como string
     }
 
@@ -314,10 +310,11 @@ def dar_baja_miembro_de_clase(filepath: str, id_miembro: str, id_clase: str) -> 
     :return: True si la inscripción fue eliminada con éxito, False en caso contrario.
     :rtype: bool
     """
+
     inscripciones = datos.cargar_datos(filepath)
     inscripciones_iniciales = len(inscripciones)
 
-    # Filtramos para mantener solo las inscripciones que NO coincidan con el par (miembro, clase)
+    # CORRECCIÓN: Usar 'and' para asegurar que ambos IDs coincidan en la misma inscripción
     inscripciones = [
         i for i in inscripciones
         if not (i.get('id_miembro') == id_miembro and i.get('id_clase') == id_clase)
@@ -359,7 +356,7 @@ def listar_miembros_inscritos_en_clase(filepath_inscripciones: str, filepath_mie
     return miembros_inscritos
 
 
-def menu_listar_clases_inscritas_por_miembro(filepath_inscripciones: str, filepath_clases: str, id_miembro: str) -> List[
+def listar_clases_inscritas_por_miembro(filepath_inscripciones: str, filepath_clases: str, id_miembro: str) -> List[
     Dict[str, Any]]:
     """
     Muestra todas las clases en las que está inscrito un miembro.
