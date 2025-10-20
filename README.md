@@ -10,7 +10,6 @@ estas clases.
 - [Uso](#uso)
 
 ## Instalación
-## Instalación
 
 1. Clona el repositorio:
    ```bash
