@@ -321,19 +321,14 @@ def main():
 
             datos_nuevos = {}
 
-            # Definir los campos que se pueden actualizar (excluyendo id_miembro y fecha_registro)
-            campos_actualizables = {
-                'nombre': 'Nuevo nombre',
-                'tipo_membresia': 'Nuevo tipo de membresía'
-            }
+            nombre = Prompt.ask("Ingrese nombre:", show_choices=False)
+            if nombre:
+                datos_nuevos['nombre'] = nombre
 
-            # Iterar sobre los campos
-            for campo, mensaje in campos_actualizables.items():
-                valor = Prompt.ask(f"{mensaje} (opcional)", default="")
-                if valor:  # Solo agregar si no está vacío
-                    datos_nuevos[campo] = valor
+            tipo_suscripcion = solicitar_tipo_suscripcion(permitir_vacio=True)
+            if tipo_suscripcion:
+                datos_nuevos['tipo_suscripcion'] = tipo_suscripcion
 
-            # Llamar a la función con el diccionario real
             miembro_actualizado = actualizar_miembro(path_miembros, id_miembro, datos_nuevos)
 
             if miembro_actualizado:
