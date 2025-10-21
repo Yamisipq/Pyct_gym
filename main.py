@@ -313,9 +313,52 @@ def main():
         elif opcion == '2':
             menu_leer_miembros(path_miembros)
         elif opcion == '3':
-            actualizar_miembro(path_miembros)
+            id_miembro = Prompt.ask("Ingrese el ID de miembro:", show_choices=False)
+
+            # Recolectar los datos que se quieren actualizar
+            console.print("\n[bold cyan]Actualizar Miembro[/bold cyan]")
+            console.print("Deje en blanco los campos que no desea modificar\n")
+
+            datos_nuevos = {}
+
+            # Definir los campos que se pueden actualizar (excluyendo id_miembro y fecha_registro)
+            campos_actualizables = {
+                'nombre': 'Nuevo nombre',
+                'tipo_membresia': 'Nuevo tipo de membresía'
+            }
+
+            # Iterar sobre los campos
+            for campo, mensaje in campos_actualizables.items():
+                valor = Prompt.ask(f"{mensaje} (opcional)", default="")
+                if valor:  # Solo agregar si no está vacío
+                    datos_nuevos[campo] = valor
+
+            # Llamar a la función con el diccionario real
+            miembro_actualizado = actualizar_miembro(path_miembros, id_miembro, datos_nuevos)
+
+            if miembro_actualizado:
+                console.print(f"\n[green]✓[/green] Miembro actualizado exitosamente")
+            else:
+                console.print(f"\n[red]✗[/red] No se encontró el miembro con ID: {id_miembro}")
+
         elif opcion == '4':
-            eliminar_miembro(path_miembros)
+            id_miembro = Prompt.ask("Ingrese el ID del miembro a eliminar:", show_choices=False)
+
+            confirmar = Prompt.ask(
+
+                f"¿Está seguro de eliminar el miembro {id_miembro}?",
+                choices=["si", "no"],default="no")
+
+            if confirmar.lower() == "si":
+
+                if eliminar_miembro(path_miembros, id_miembro):
+
+                    console.print(f"\n[green]✓[/green] Miembro eliminado exitosamente")
+
+                else:
+                    console.print(f"\n[red]✗[/red] No se encontró el miembro con ID: {id_miembro}")
+            else:
+                console.print("\n[yellow]Operación cancelada[/yellow]")
 
         elif opcion == '5':
             menu_crear_clase(path_clases)
