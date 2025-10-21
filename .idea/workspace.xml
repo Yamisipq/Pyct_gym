@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1b05924e-34fb-4812-ad38-531d9ce3dd7c" name="Changes" comment="correción de lógica">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="1b05924e-34fb-4812-ad38-531d9ce3dd7c" name="Changes" comment="correción de lógica, apartados act_miembro y elim_miembro" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -139,7 +136,7 @@
       <workItem from="1760962912940" duration="12471000" />
       <workItem from="1760978757163" duration="148000" />
       <workItem from="1761046660578" duration="18000" />
-      <workItem from="1761046688445" duration="4833000" />
+      <workItem from="1761046688445" duration="5189000" />
     </task>
     <task id="LOCAL-00001" summary="actz docstrings">
       <option name="closed" value="true" />
@@ -157,16 +154,36 @@
       <option name="project" value="LOCAL" />
       <updated>1760978822935</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="correción de lógica, apartados act_miembro y elim_miembro">
+      <option name="closed" value="true" />
+      <created>1761051987766</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1761051987766</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="actz docstrings" />
     <MESSAGE value="correción de lógica" />
-    <option name="LAST_COMMIT_MESSAGE" value="correción de lógica" />
+    <MESSAGE value="correción de lógica, apartados act_miembro y elim_miembro" />
+    <option name="LAST_COMMIT_MESSAGE" value="correción de lógica, apartados act_miembro y elim_miembro" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Pyct_gym$main.coverage" NAME="main Coverage Results" MODIFIED="1761051786205" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
