@@ -390,11 +390,13 @@ def main():
                 tabla.add_column("Clase")
                 tabla.add_column("Instructor")
 
+
                 for c in clases:
                     tabla.add_row(
                         c.get('id_clase', 'N/D'),
                         c.get('nombre_clase', 'N/D'),
                         c.get('instructor', 'N/D')
+
                     )
 
                 console.print(tabla)
