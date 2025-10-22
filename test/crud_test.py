@@ -4,14 +4,13 @@ import crud
 
 
 def crear_miembro(filepath, nombre, tipo_suscripcion):
-    datos.inicializar_archivo(filepath)  # 👈 agregar esto
+    datos.inicializar_archivo(filepath)
     miembros = datos.cargar_datos(filepath)
     ...
 
 def leer_miembro(tmp_path):
     path = tmp_path / "info/miembros.csv"
 
-    # Leer miembros
     miembros = crud.leer_todos_los_miembros(str(path))
     assert len(miembros) == 1
     assert miembros[0]["nombre"] == "Carlos"
