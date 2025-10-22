@@ -21,7 +21,7 @@ estas clases.
 ## Uso
     python main.py
 
-## Autor
+## Autores
 
 - [Yamith Rosas](https://github.com/Yamisipq)
 - [Marlon Rodriguez](https://github.com/tuusuario)

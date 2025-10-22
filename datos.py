@@ -12,7 +12,7 @@ from typing import Any, Dict, List
 
 # Definición de campos para las tres entidades
 CAMPOS_MIEMBROS = ['id_miembro', 'nombre', 'tipo_suscripcion']
-CAMPOS_CLASES = ['id_clase', 'nombre_clase', 'instructor', 'horario', 'cupo_maximo']
+CAMPOS_CLASES = ['id_clase', 'nombre_clase', 'instructor', 'cupo_maximo']
 
 
 def inicializar_archivo(filepath: str) -> None:
@@ -24,9 +24,8 @@ def inicializar_archivo(filepath: str) -> None:
     - Para JSON: lo crea como una lista vacía `[]`.
 
     :param filepath: La ruta completa al archivo de datos (ej. 'data/miembros.csv').
-    :type filepath: str
-    :return: None
-    :rtype: None
+    :type filepath: Str
+    :return: None:rtype:
     """
     directorio = os.path.dirname(filepath)
     if directorio and not os.path.exists(directorio):
@@ -51,7 +50,8 @@ def inicializar_archivo(filepath: str) -> None:
 
 def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
     """
-    Carga los datos desde un archivo (CSV o JSON) y los retorna como una lista de diccionarios.
+    Carga los datos desde un archivo (CSV o JSON) y
+    los retorna como una lista de diccionarios.
 
     Asegura la inicialización del archivo antes de intentar la lectura.
     Retorna una lista vacía `[]` si el archivo no existe o está vacío/corrupto.
@@ -67,7 +67,7 @@ def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
         if filepath.endswith('.csv'):
             with open(filepath, mode='r', newline='', encoding='utf-8') as csv_file:
                 lector = csv.DictReader(csv_file)
-                # Convertir a lista y asegurar que los campos numéricos se cargan como string
+                # Convertir a lista y asegurar campos numéricos se cargan como str
                 return [dict(row) for row in lector]
         elif filepath.endswith('.json'):
             with open(filepath, mode='r', encoding='utf-8') as json_file:
@@ -79,11 +79,11 @@ def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
 
 def guardar_datos(filepath: str, datos: List[Dict[str, Any]]) -> None:
     """
-    Guarda una lista de diccionarios en un archivo (CSV o JSON), sobrescribiendo el contenido.
+    Guarda una lista de diccionarios en un archivo (CSV o JSON).
 
     :param filepath: La ruta completa al archivo de datos.
     :type filepath: str
-    :param datos: La lista de diccionarios (datos de Miembros, Clases o Inscripciones) a guardar.
+    :param datos: La lista de diccionarios (datos de Miembros, Clases o Inscripciones).
     :type datos: List[Dict[str, Any]]
     :return: None
     :rtype: None

@@ -1,4 +1,7 @@
-# -*- coding: utf-8 -*-
+from typing import Any, Dict, List, Optional
+
+import datos
+
 """
 Módulo de Lógica de Negocio.
 
@@ -6,11 +9,6 @@ Contiene todas las funciones para gestionar el gimnasio (CRUD de Miembros y Clas
 y gestión de Inscripciones).
 """
 
-from typing import Any, Dict, List, Optional
-import datos
-
-
-# --- Funciones Auxiliares ---
 
 def generar_nuevo_id(entidad: str, lista: List[Dict[str, Any]]) -> str:
     """
@@ -30,21 +28,16 @@ def generar_nuevo_id(entidad: str, lista: List[Dict[str, Any]]) -> str:
     if not lista:
         return '1'
 
-    # Busca el máximo ID numérico existente
     max_id = 0
     for item in lista:
         try:
             current_id = int(item.get(id_key, 0))
-            if current_id > max_id:
-                max_id = current_id
+            max_id = max(max_id, current_id)
         except ValueError:
-            # Ignora IDs no numéricos
             pass
 
     return str(max_id + 1)
 
-
-# --- CRUD de Miembros (Persistencia en miembros.csv) ---
 
 def crear_miembro(
         filepath: str,
@@ -105,6 +98,7 @@ def buscar_miembro_por_id(filepath: str, id_miembro: str) -> Optional[Dict[str, 
     :return: El diccionario del miembro encontrado o None si no se encuentra.
     :rtype: Optional[Dict[str, Any]]
     """
+
     miembros = datos.cargar_datos(filepath)
     for miembro in miembros:
         if miembro.get('id_miembro') == id_miembro:
@@ -144,17 +138,52 @@ def actualizar_miembro(
     return None
 
 
-def eliminar_miembro(filepath: str, id_miembro: str) -> bool:
+def eliminar_inscripciones_miembro(filepath_inscripciones: str, id_miembro: str) -> int:
     """
-    (DELETE) Elimina un miembro.
+    Elimina todas las inscripciones de un miembro específico.
+
+    Se usa internamente cuando se elimina un miembro para mantener
+    la integridad referencial del sistema.
+
+    :param filepath_inscripciones: Ruta del archivo de inscripciones.
+    :type filepath_inscripciones: str
+    :param id_miembro: ID del miembro cuyas inscripciones se eliminarán.
+    :type id_miembro: str
+    :return: Número de inscripciones eliminadas.
+    :rtype: int
+    """
+    inscripciones = datos.cargar_datos(filepath_inscripciones)
+    inscripciones_iniciales = len(inscripciones)
+
+    # Filtrar todas las inscripciones que NO pertenezcan al miembro
+    inscripciones = [
+        i for i in inscripciones
+        if i.get('id_miembro') != id_miembro
+    ]
+
+    inscripciones_eliminadas = inscripciones_iniciales - len(inscripciones)
+
+    if inscripciones_eliminadas > 0:
+        datos.guardar_datos(filepath_inscripciones, inscripciones)
+
+    return inscripciones_eliminadas
+
+
+def eliminar_miembro(filepath: str, id_miembro: str,
+                     filepath_inscripciones: str = None) -> bool:
+    """
+    (DELETE) Elimina un miembro y opcionalmente sus inscripciones.
 
     Carga los datos y filtra la lista para excluir el miembro con el ID dado.
-    Guarda la lista si el miembro fue eliminado.
+    Si se proporciona filepath_inscripciones, también elimina todas las
+    inscripciones del miembro para mantener la integridad referencial.
 
     :param filepath: Ruta del archivo donde se guardan los miembros (miembros.csv).
     :type filepath: str
     :param id_miembro: ID del miembro a eliminar.
     :type id_miembro: str
+    :param filepath_inscripciones: Ruta del archivo de inscripciones (opcional).
+    :type filepath_inscripciones: str
     :return: True si el miembro fue eliminado con éxito, False en caso contrario.
     :rtype: bool
     """
@@ -166,6 +195,11 @@ def eliminar_miembro(filepath: str, id_miembro: str) -> bool:
 
     if len(miembros) < miembros_iniciales:
         datos.guardar_datos(filepath, miembros)
+
+        # Si se proporciona la ruta de inscripciones, eliminarlas también
+        if filepath_inscripciones:
+            eliminar_inscripciones_miembro(filepath_inscripciones, id_miembro)
+
         return True
 
     return False
@@ -242,7 +276,7 @@ def buscar_clase_por_id(filepath: str, id_clase: str) -> Optional[Dict[str, Any]
     return None
 
 
-# Las funciones de actualización y eliminación de clases son similares a las de Miembros,
+# Las funciones de actualización y eliminación de clases son similares a las de Miembros
 # se omiten por espacio, pero se implementarían de forma análoga.
 
 # --- Gestión de Inscripciones (Persistencia en inscripciones.json) ---
@@ -259,39 +293,42 @@ def inscribir_miembro_en_clase(
     Realiza validaciones de existencia de clase, duplicado de inscripción y cupo máximo.
     Si es exitoso, crea la inscripción y guarda los datos.
 
-    :param filepath_inscripciones: Ruta del archivo de inscripciones (inscripciones.json).
+    :param filepath_inscripciones: Ruta del archivo de inscripciones.
     :type filepath_inscripciones: str
-    :param filepath_clases: Ruta del archivo de clases (clases.csv), necesario para obtener datos de la clase.
+    :param filepath_clases: Ruta del archivo de clases.
     :type filepath_clases: str
     :param id_miembro: ID del miembro a inscribir.
     :type id_miembro: str
     :param id_clase: ID de la clase.
     :type id_clase: str
-    :return: Una tupla conteniendo un booleano (True si es exitoso, False si hay error)
-             y un mensaje de estado/error.
+    :return: Una tupla conteniendo un booleano y
+     un mensaje de estado/error.
     :rtype: tuple[bool, str]
     """
     inscripciones = datos.cargar_datos(filepath_inscripciones)
     clase = buscar_clase_por_id(filepath_clases, id_clase)
 
     if not clase:
-        return (False, f" Error: Clase con ID '{id_clase}' no encontrada.")
+        return False, f" Error: Clase con ID '{id_clase}' no encontrada."
 
     # 1. Validación de duplicado
     inscritos_clase = [i for i in inscripciones if i['id_clase'] == id_clase]
     if any(i['id_miembro'] == id_miembro for i in inscritos_clase):
-        return (False, f" Error: El miembro '{id_miembro}' ya está inscrito en la clase '{clase['nombre_clase']}'.")
+        return False, (f" Error: El miembro '{id_miembro}' "
+                       f"ya está inscrito en la clase '{clase['nombre_clase']}'.")
 
     # 2. Validación de cupo
     cupo_maximo = int(clase.get('cupo_maximo', 0))
     if len(inscritos_clase) >= cupo_maximo:
-        return (False, f" Error: La clase '{clase['nombre_clase']}' ha alcanzado su cupo máximo ({cupo_maximo}).")
+        return False, (f" Error: La clase '{clase['nombre_clase']}' "
+                       f"ha alcanzado su cupo máximo ({cupo_maximo}).")
 
     # 3. Creación de inscripción
     nueva_inscripcion = {'id_miembro': id_miembro, 'id_clase': id_clase}
     inscripciones.append(nueva_inscripcion)
     datos.guardar_datos(filepath_inscripciones, inscripciones)
-    return (True, f"¡Inscripción exitosa! Miembro {id_miembro} en clase {clase['nombre_clase']}.")
+    return True, (f"Inscripción exitosa! Miembro {id_miembro} en clase "
+                  f"{clase['nombre_clase']}.")
 
 
 def dar_baja_miembro_de_clase(filepath: str, id_miembro: str, id_clase: str) -> bool:
@@ -314,7 +351,6 @@ def dar_baja_miembro_de_clase(filepath: str, id_miembro: str, id_clase: str) -> 
     inscripciones = datos.cargar_datos(filepath)
     inscripciones_iniciales = len(inscripciones)
 
-    # CORRECCIÓN: Usar 'and' para asegurar que ambos IDs coincidan en la misma inscripción
     inscripciones = [
         i for i in inscripciones
         if not (i.get('id_miembro') == id_miembro and i.get('id_clase') == id_clase)
@@ -327,7 +363,8 @@ def dar_baja_miembro_de_clase(filepath: str, id_miembro: str, id_clase: str) -> 
     return False
 
 
-def listar_miembros_inscritos_en_clase(filepath_inscripciones: str, filepath_miembros: str, id_clase: str) -> List[
+def listar_miembros_inscritos_en_clase(filepath_inscripciones: str,
+                                       filepath_miembros: str, id_clase: str) -> List[
     Dict[str, Any]]:
     """
     Muestra la lista de miembros inscritos en una clase específica.
@@ -335,9 +372,9 @@ def listar_miembros_inscritos_en_clase(filepath_inscripciones: str, filepath_mie
     Obtiene los IDs de los miembros inscritos en la clase dada, y luego
     busca los detalles completos de esos miembros.
 
-    :param filepath_inscripciones: Ruta del archivo de inscripciones (inscripciones.json).
+    :param filepath_inscripciones: Ruta del archivo de inscripciones.
     :type filepath_inscripciones: str
-    :param filepath_miembros: Ruta del archivo de miembros (miembros.csv).
+    :param filepath_miembros: Ruta del archivo de miembros.
     :type filepath_miembros: str
     :param id_clase: ID de la clase cuyos miembros inscritos se desean listar.
     :type id_clase: str
@@ -356,20 +393,21 @@ def listar_miembros_inscritos_en_clase(filepath_inscripciones: str, filepath_mie
     return miembros_inscritos
 
 
-def listar_clases_inscritas_por_miembro(filepath_inscripciones: str, filepath_clases: str, id_miembro: str) -> List[
+def listar_clases_inscritas_por_miembro(filepath_inscripciones: str,
+                                        filepath_clases: str, id_miembro: str) -> List[
     Dict[str, Any]]:
     """
     Muestra todas las clases en las que está inscrito un miembro.
 
-    Obtiene los IDs de las clases en las que está inscrito el miembro dado,
+    Obtiene los ID de las clases en las que está inscrito el miembro dado,
     y luego busca los detalles completos de esas clases.
 
-    :param filepath_inscripciones: Ruta del archivo de inscripciones (inscripciones.json).
-    :type filepath_inscripciones: str
-    :param filepath_clases: Ruta del archivo de clases (clases.csv).
-    :type filepath_clases: str
+    :param filepath_inscripciones: Ruta del archivo de inscripciones.
+    :type filepath_inscripciones: Str
+    :param filepath_clases: Ruta del archivo de clases.
+    :type filepath_clases: Str
     :param id_miembro: ID del miembro cuyas clases inscritas se desean listar.
-    :type id_miembro: str
+    :type id_miembro: Str
     :return: Lista de diccionarios, cada uno con los detalles de una clase inscrita.
     :rtype: List[Dict[str, Any]]
     """
