@@ -1,8 +1,7 @@
-
-import pytest
 import json
-import csv
-import os
+
+import pytest  # noqa: F401
+
 import datos
 
 
