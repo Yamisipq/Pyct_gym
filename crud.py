@@ -364,7 +364,7 @@ def dar_baja_miembro_de_clase(filepath: str, id_miembro: str, id_clase: str) -> 
 
 
 def listar_miembros_inscritos_en_clase(filepath_inscripciones: str,
-                                       filepath_miembros: str, id_clase: str) -> List[
+    filepath_miembros: str, id_clase: str) -> List[
     Dict[str, Any]]:
     """
     Muestra la lista de miembros inscritos en una clase específica.
@@ -384,7 +384,8 @@ def listar_miembros_inscritos_en_clase(filepath_inscripciones: str,
     inscripciones = datos.cargar_datos(filepath_inscripciones)
     miembros_todos = datos.cargar_datos(filepath_miembros)
 
-    ids_inscritos = [i['id_miembro'] for i in inscripciones if i['id_clase'] == id_clase]
+    ids_inscritos = \
+        [i['id_miembro'] for i in inscripciones if i['id_clase'] == id_clase]
 
     miembros_inscritos = [
         m for m in miembros_todos

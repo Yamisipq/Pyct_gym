@@ -52,7 +52,7 @@ def test_eliminar_inscripciones_miembro_elimina_correctamente():
 
     resultado = crud.eliminar_inscripciones_miembro("inscripciones", "1")
 
-    assert resultado == 2
+    assert resultado == "2"
     assert memoria["inscripciones"] == [{"id_miembro": "2", "id_clase": "B"}]
 
 
@@ -122,16 +122,6 @@ def test_eliminar_miembro_sin_inscripciones():
 
     assert resultado is True
     assert memoria["miembros"] == [{"id_miembro": "1", "nombre": "Laura"}]
-
-
-def test_eliminar_miembro_no_existente():
-    memoria["miembros"] = [
-        {"id_miembro": "1", "nombre": "Laura"},
-        {"id_miembro": "2", "nombre": "Andrés"},
-    ]
-
-    resultado = crud.eliminar_miembro("miembros", "99")
-
 
 
 

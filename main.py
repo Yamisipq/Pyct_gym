@@ -342,7 +342,7 @@ def elim_miembro(path_miembros: str, path_inscripciones: str):
 
     if confirmar.lower() == "si":
         if crud.eliminar_miembro(path_miembros, id_miembro, path_inscripciones):
-            console.print("\n[green] ✓ [/green] Miembro y sus inscripciones eliminados exitosamente")
+            console.print("\n[green] ✓ [/green] Miembro e inscripciones eliminados")
         else:
             console.print(f"\n[red]✗[/red] "
                           f"No se encontró el miembro con ID: {id_miembro}")
