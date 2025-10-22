@@ -29,7 +29,7 @@ norecursedirs = [
 
 # Puedes definir tus propios marcadores para agrupar pruebas.
 # Útil para ejecutar solo un subconjunto de pruebas.
-# Por ejemplo, `pytest -m "slow"` para ejecutar solo las pruebas lentas.
+# Por ejemplo, `test -m "slow"` para ejecutar solo las pruebas lentas.
 markers = [
     "slow: marca las pruebas que tardan mucho en ejecutarse",
     "integration: marca las pruebas de integración"
