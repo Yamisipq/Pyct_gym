@@ -1,9 +1,9 @@
 from typing import Any, Dict, List, Optional
 
-import datos
+from logic.Modelo import datos
 
 """
-Módulo de Lógica de Negocio.
+Módulo de logic de Negocio.
 
 Contiene todas las funciones para gestionar el gimnasio (CRUD de Miembros y Clases,
 y gestión de Inscripciones).

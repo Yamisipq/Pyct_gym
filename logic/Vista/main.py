@@ -13,7 +13,7 @@ from rich.panel import Panel
 from rich.prompt import IntPrompt, Prompt
 from rich.table import Table
 
-import crud
+from logic.Controlador import crud
 
 console = Console()
 
