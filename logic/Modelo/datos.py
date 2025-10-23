@@ -30,7 +30,6 @@ def inicializar_archivo(filepath: str) -> None:
         os.makedirs(directorio)
 
     if not os.path.exists(filepath):
-        # Determinamos los campos según el nombre del archivo
         campos = []
         if 'miembros.csv' in filepath:
             campos = CAMPOS_MIEMBROS
@@ -42,7 +41,6 @@ def inicializar_archivo(filepath: str) -> None:
                 writer = csv.DictWriter(csv_file, fieldnames=campos)
                 writer.writeheader()
         elif filepath.endswith('.json'):
-            # Los archivos JSON de datos (como Inscripciones) siempre comienzan vacíos
             with open(filepath, mode='w', encoding='utf-8') as json_file:
                 json.dump([], json_file)
 
@@ -65,7 +63,6 @@ def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
         if filepath.endswith('.csv'):
             with open(filepath, mode='r', newline='', encoding='utf-8') as csv_file:
                 lector = csv.DictReader(csv_file)
-                # Convertir a lista y asegurar campos numéricos se cargan como str
                 return [dict(row) for row in lector]
         elif filepath.endswith('.json'):
             with open(filepath, mode='r', encoding='utf-8') as json_file:
