@@ -23,7 +23,6 @@ NOMBRE_ARCHIVO_MIEMBROS = 'miembros.csv'
 NOMBRE_ARCHIVO_CLASES = 'clases.csv'
 NOMBRE_ARCHIVO_INSCRIPCIONES = 'inscripciones.json'
 
-# --- Funciones de Interfaz de Usuario con Rich (Miembros) ---
 
 def solicitar_tipo_suscripcion(permitir_vacio: bool = False) -> Optional[str]:
     """
@@ -121,7 +120,6 @@ def menu_leer_miembros(filepath: str):
 
     console.print(tabla)
 
-# --- Funciones de Interfaz de Usuario (Clases) ---
 
 def menu_crear_clase(filepath: str):
     """
@@ -187,7 +185,6 @@ def menu_leer_clases(filepath: str):
 
     console.print(tabla)
 
-# --- Funciones de Interfaz de Usuario con Rich (Inscripciones) ---
 
 def menu_inscribir_miembro(filepath_i: str, filepath_c: str):
     """
@@ -254,7 +251,6 @@ def menu_mostrar_miembros_inscritos(filepath_i: str, filepath_m: str):
 
     console.print(tabla)
 
-# --- Menús Principales ---
 
 def mostrar_menu_principal():
     """

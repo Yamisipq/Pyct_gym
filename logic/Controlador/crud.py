@@ -190,22 +190,17 @@ def eliminar_miembro(filepath: str, id_miembro: str,
     miembros = datos.cargar_datos(filepath)
     miembros_iniciales = len(miembros)
 
-    # Filtramos la lista, manteniendo solo los que NO coincidan con el ID
     miembros = [m for m in miembros if m.get('id_miembro') != id_miembro]
 
     if len(miembros) < miembros_iniciales:
         datos.guardar_datos(filepath, miembros)
 
-        # Si se proporciona la ruta de inscripciones, eliminarlas también
         if filepath_inscripciones:
             eliminar_inscripciones_miembro(filepath_inscripciones, id_miembro)
 
         return True
 
     return False
-
-
-# --- CRUD de Clases (Persistencia en clases.csv) ---
 
 def crear_clase(
         filepath: str,
@@ -275,12 +270,6 @@ def buscar_clase_por_id(filepath: str, id_clase: str) -> Optional[Dict[str, Any]
             return clase
     return None
 
-
-# Las funciones de actualización y eliminación de clases son similares a las de Miembros
-# se omiten por espacio, pero se implementarían de forma análoga.
-
-# --- Gestión de Inscripciones (Persistencia en inscripciones.json) ---
-
 def inscribir_miembro_en_clase(
         filepath_inscripciones: str,
         filepath_clases: str,
@@ -311,19 +300,16 @@ def inscribir_miembro_en_clase(
     if not clase:
         return False, f" Error: Clase con ID '{id_clase}' no encontrada."
 
-    # 1. Validación de duplicado
     inscritos_clase = [i for i in inscripciones if i['id_clase'] == id_clase]
     if any(i['id_miembro'] == id_miembro for i in inscritos_clase):
         return False, (f" Error: El miembro '{id_miembro}' "
                        f"ya está inscrito en la clase '{clase['nombre_clase']}'.")
 
-    # 2. Validación de cupo
     cupo_maximo = int(clase.get('cupo_maximo', 0))
     if len(inscritos_clase) >= cupo_maximo:
         return False, (f" Error: La clase '{clase['nombre_clase']}' "
                        f"ha alcanzado su cupo máximo ({cupo_maximo}).")
 
-    # 3. Creación de inscripción
     nueva_inscripcion = {'id_miembro': id_miembro, 'id_clase': id_clase}
     inscripciones.append(nueva_inscripcion)
     datos.guardar_datos(filepath_inscripciones, inscripciones)
