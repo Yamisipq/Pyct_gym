@@ -2,7 +2,7 @@ import json
 
 import pytest  # noqa: F401
 
-import datos
+from logic.Modelo import datos
 
 
 def test_inicializar_archivo_csv(tmp_path):

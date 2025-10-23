@@ -1,7 +1,8 @@
 import pytest  # noqa: F401
 
-import crud
-import datos
+import logic.Modelo as modelo
+from logic.Controlador import crud
+from logic.Modelo import datos
 
 
 def crear_miembro(filepath, nombre, tipo_suscripcion):
@@ -23,7 +24,7 @@ def test_buscar_y_actualizar_miembro(tmp_path):
     assert buscado["nombre"] == "Laura"
 
     actualizado = crud.actualizar_miembro(str(path),
-        m1["id_miembro"], {"nombre": "Laura Actualizada"})
+    m1["id_miembro"], {"nombre": "Laura Actualizada"})
     assert actualizado["nombre"] == "Laura Actualizada"
 
     miembros = crud.leer_todos_los_miembros(str(path))
@@ -39,8 +40,8 @@ def cargar_datos(filepath):
 def guardar_datos(filepath, lista):
     memoria["inscripciones"] = list(lista)
 
-crud.datos.cargar_datos = cargar_datos
-crud.datos.guardar_datos = guardar_datos
+modelo.datos.cargar_datos = cargar_datos
+modelo.datos.guardar_datos = guardar_datos
 
 
 def test_eliminar_inscripciones_miembro_elimina_correctamente():
@@ -89,8 +90,8 @@ def guardar_datos(filepath, lista):
     elif "inscripciones" in filepath:
         memoria["inscripciones"] = list(lista)
 
-crud.datos.cargar_datos = cargar_datos
-crud.datos.guardar_datos = guardar_datos
+modelo.datos.cargar_datos = cargar_datos
+modelo.datos.guardar_datos = guardar_datos
 
 
 def test_eliminar_miembro_con_inscripciones():

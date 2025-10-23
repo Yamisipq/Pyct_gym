@@ -1,6 +1,6 @@
 import os
 
-import main
+from logic.Vista import main
 
 # ============================================================
 #   HELPERS (mock functions para reemplazar lambdas)
