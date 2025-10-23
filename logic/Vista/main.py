@@ -17,7 +17,6 @@ from logic.Controlador import crud
 
 console = Console()
 
-# Constantes para la gestión de archivos
 DIRECTORIO_DATOS = 'info'
 NOMBRE_ARCHIVO_MIEMBROS = 'miembros.csv'
 NOMBRE_ARCHIVO_CLASES = 'clases.csv'

@@ -131,7 +131,6 @@ def actualizar_miembro(
     for i, miembro in enumerate(miembros):
         if miembro.get('id_miembro') == id_miembro:
             miembro.update(datos_nuevos)
-            # Aseguramos que solo se guarden las claves definidas
             miembros[i] = {k: miembro.get(k, '') for k in datos.CAMPOS_MIEMBROS}
             datos.guardar_datos(filepath, miembros)
             return miembros[i]
@@ -155,7 +154,6 @@ def eliminar_inscripciones_miembro(filepath_inscripciones: str, id_miembro: str)
     inscripciones = datos.cargar_datos(filepath_inscripciones)
     inscripciones_iniciales = len(inscripciones)
 
-    # Filtrar todas las inscripciones que NO pertenezcan al miembro
     inscripciones = [
         i for i in inscripciones
         if i.get('id_miembro') != id_miembro
