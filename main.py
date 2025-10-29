@@ -394,14 +394,13 @@ def main():
                 tabla.add_column("ID Clase", style="dim", width=10)
                 tabla.add_column("Clase")
                 tabla.add_column("Instructor")
-                tabla.add_column("Horario")
+
 
                 for c in clases:
                     tabla.add_row(
                         c.get('id_clase', 'N/D'),
                         c.get('nombre_clase', 'N/D'),
-                        c.get('instructor', 'N/D'),
-                        c.get('horario', 'N/D')
+                        c.get('instructor', 'N/D')
                     )
 
                 console.print(tabla)

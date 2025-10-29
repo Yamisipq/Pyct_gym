@@ -12,7 +12,7 @@ from typing import Any, Dict, List
 
 # Definición de campos para las tres entidades
 CAMPOS_MIEMBROS = ['id_miembro', 'nombre', 'tipo_suscripcion']
-CAMPOS_CLASES = ['id_clase', 'nombre_clase', 'instructor', 'horario', 'cupo_maximo']
+CAMPOS_CLASES = ['id_clase', 'nombre_clase', 'instructor',  'cupo_maximo']
 
 
 def inicializar_archivo(filepath: str) -> None:

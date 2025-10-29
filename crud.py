@@ -420,7 +420,7 @@ def ver_cupos_disponibles():
                 continue
 
             try:
-                cupos = int(fila[4])
+                cupos = int(fila[3])
             except ValueError:
                 console.print(f"[red]Error: cupos inválidos en la clase {fila[1]} ({fila[3]}).[/red]")
                 continue
@@ -449,7 +449,7 @@ def ver_cupos_disponibles():
     tabla = Table(title="CUPOS DISPONIBLES POR CLASE", style="cyan")
     tabla.add_column("ID", justify="center")
     tabla.add_column("Clase", justify="left")
-    tabla.add_column("Tipo", justify="center")
+    tabla.add_column("Instructor", justify="center")
     tabla.add_column("Cupos Totales", justify="center")
     tabla.add_column("Inscritos", justify="center")
     tabla.add_column("Disponibles", justify="center")
