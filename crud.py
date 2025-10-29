@@ -9,6 +9,17 @@ y gestión de Inscripciones).
 from typing import Any, Dict, List, Optional
 import datos
 
+from rich.console import Console
+from rich.table import Table
+import csv
+import os
+import json
+
+console = Console()
+
+INFO_DIR = "info"
+CLASES_FILE = os.path.join(INFO_DIR, "clases.csv")
+INSCRIPCIONES_FILE = os.path.join(INFO_DIR, "inscripciones.json")
 
 # --- Funciones Auxiliares ---
 
@@ -383,3 +394,74 @@ def listar_clases_inscritas_por_miembro(filepath_inscripciones: str, filepath_cl
         if c.get('id_clase') in ids_clases
     ]
     return clases_inscritas
+def ver_cupos_disponibles():
+    """
+    Muestra los cupos disponibles por clase leyendo clases.csv e inscripciones.json.
+    Si el CSV no tiene columna de cupos, se asigna un valor por defecto (10).
+    """
+    if not os.path.exists(CLASES_FILE):
+        console.print("[red]El archivo de clases no existe.[/red]")
+        return
+
+    if not os.path.exists(INSCRIPCIONES_FILE):
+        console.print("[red]El archivo de inscripciones no existe.[/red]")
+        return
+
+    # Leer clases desde CSV
+    clases = []
+    with open(CLASES_FILE, "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        next(reader, None)  # <- 🔹 omite la primera fila
+        for fila in reader:
+            if not fila:
+                continue
+            if len(fila) < 4:
+                console.print(f"[yellow]La clase con ID {fila[0]} no tiene cupos definidos. Se omitirá.[/yellow]")
+                continue
+
+            try:
+                cupos = int(fila[4])
+            except ValueError:
+                console.print(f"[red]Error: cupos inválidos en la clase {fila[1]} ({fila[3]}).[/red]")
+                continue
+
+            clases.append({
+                "id": fila[0],
+                "nombre": fila[1],
+                "tipo": fila[2],
+                "cupos": cupos
+            })
+
+    # Leer inscripciones
+    try:
+        with open(INSCRIPCIONES_FILE, "r", encoding="utf-8") as f:
+            inscripciones = json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError):
+        inscripciones = []
+
+    # Contar inscritos por clase
+    inscritos_por_clase = {}
+    for insc in inscripciones:
+        id_clase = str(insc.get("id_clase"))
+        inscritos_por_clase[id_clase] = inscritos_por_clase.get(id_clase, 0) + 1
+
+    # Crear tabla con Rich
+    tabla = Table(title="CUPOS DISPONIBLES POR CLASE", style="cyan")
+    tabla.add_column("ID", justify="center")
+    tabla.add_column("Clase", justify="left")
+    tabla.add_column("Tipo", justify="center")
+    tabla.add_column("Cupos Totales", justify="center")
+    tabla.add_column("Inscritos", justify="center")
+    tabla.add_column("Disponibles", justify="center")
+
+    for c in clases:
+        inscritos = inscritos_por_clase.get(c["id"], 0)
+        disponibles = c["cupos"] - inscritos
+        color = "green" if disponibles > 0 else "red"
+        tabla.add_row(
+            c["id"], c["nombre"], c["tipo"],
+            str(c["cupos"]), str(inscritos),
+            f"[{color}]{disponibles}[/{color}]"
+        )
+
+    console.print(tabla)

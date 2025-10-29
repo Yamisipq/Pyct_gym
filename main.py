@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import IntPrompt, Prompt
 from rich.table import Table
-from typing import Optional
+from typing import Optional, List
 
 from crud import actualizar_miembro, eliminar_miembro, dar_baja_miembro_de_clase, \
     listar_clases_inscritas_por_miembro
@@ -85,7 +85,6 @@ def menu_crear_miembro(filepath: str):
     else:
         console.print(Panel("No se pudo registrar al miembro.",
                             border_style="red", title="Error"))
-
 
 def menu_leer_miembros(filepath: str):
     """
@@ -277,7 +276,8 @@ def mostrar_menu_principal():
         "7.Inscribir miembro en clase\n"
         "8.Listar miembros inscritos en clase\n"
         "9.Dar de baja a un miembro de clase\n"
-        "10.Mostrar clases de un miembro\n\n"
+        "10.Mostrar clases de un miembro\n"
+        "11. Ver cupos disponibles por clase\n\n"
         "0.Salir"
     )
     console.print(Panel(menu_texto, title="SISTEMA DE GESTIÓN DE GIMNASIO", subtitle="Seleccione una opción", border_style="green"))
@@ -306,7 +306,7 @@ def main():
 
     while True:
         mostrar_menu_principal()
-        opcion = Prompt.ask("Opción", choices=[str(i) for i in range(11)], show_choices=False)
+        opcion = Prompt.ask("Opción", choices=[str(i) for i in range(12)], show_choices=False)
 
         if opcion == '1':
             menu_crear_miembro(path_miembros)
@@ -405,10 +405,14 @@ def main():
                     )
 
                 console.print(tabla)
-
+        elif opcion == "11":
+                from crud import ver_cupos_disponibles
+                ver_cupos_disponibles()
         elif opcion == '0':
             console.print("\n¡Hasta luego! Gracias por usar la gestión de gimnasio.")
             break
+        else:
+            console.print("[red]Please select one of the available options[/red]")
 
         Prompt.ask("\nPresione Enter para continuar...", default="", show_default=False)
 
