@@ -1,10 +1,6 @@
-import os
-import json
-from pathlib import Path
-import pytest
 
-import datos
 import crud
+import datos
 
 
 def setup_paths(tmp_path):
@@ -42,10 +38,11 @@ def test_inscribir_miembro_en_clase(tmp_path):
     datos.inicializar_archivo(path_i)
     miembro = crud.crear_miembro(path_m, "Luisa", "Anual")
     clase = crud.crear_clase(path_c, "Pilates", "Carlos", 1)
-    ok, msg = crud.inscribir_miembro_en_clase(path_i, path_c, miembro["id_miembro"], clase["id_clase"])
+    ok, msg = crud.inscribir_miembro_en_clase(path_i, path_c,
+        miembro["id_miembro"], clase["id_clase"])
     assert ok is True
-    # intentar inscribir de nuevo el mismo miembro -> debe fallar por duplicado
-    ok2, msg2 = crud.inscribir_miembro_en_clase(path_i, path_c, miembro["id_miembro"], clase["id_clase"])
+    ok2, msg2 = crud.inscribir_miembro_en_clase(path_i, path_c,
+        miembro["id_miembro"], clase["id_clase"])
     assert ok2 is False
 
 
@@ -57,8 +54,9 @@ def test_cupo_maximo(tmp_path):
     m1 = crud.crear_miembro(path_m, "A", "Mensual")
     m2 = crud.crear_miembro(path_m, "B", "Mensual")
     clase = crud.crear_clase(path_c, "Box", "Entrenador", 1)
-    ok1, _ = crud.inscribir_miembro_en_clase(path_i, path_c, m1["id_miembro"], clase["id_clase"])
+    ok1, _ = crud.inscribir_miembro_en_clase(path_i, path_c, m1["id_miembro"],
+        clase["id_clase"])
     assert ok1 is True
-    # Segundo miembro no debe poder inscribirse por cupo lleno
-    ok2, _ = crud.inscribir_miembro_en_clase(path_i, path_c, m2["id_miembro"], clase["id_clase"])
+    ok2, _ = crud.inscribir_miembro_en_clase(path_i, path_c, m2["id_miembro"],
+        clase["id_clase"])
     assert ok2 is False
