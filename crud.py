@@ -151,32 +151,34 @@ def actualizar_miembro(
     return None
 
 
-def eliminar_miembro(filepath: str, id_miembro: str) -> bool:
+def eliminar_miembro(filepath_miembros: str, id_miembro: str, filepath_inscripciones: str = INSCRIPCIONES_FILE) -> bool:
     """
-    (DELETE) Elimina un miembro.
+    (DELETE) Elimina un miembro y todas sus inscripciones asociadas.
 
-    Carga los datos y filtra la lista para excluir el miembro con el ID dado.
-    Guarda la lista si el miembro fue eliminado.
-
-    :param filepath: Ruta del archivo donde se guardan los miembros (miembros.csv).
-    :type filepath: str
+    :param filepath_miembros: Ruta del archivo donde se guardan los miembros (miembros.csv).
     :param id_miembro: ID del miembro a eliminar.
-    :type id_miembro: str
-    :return: True si el miembro fue eliminado con éxito, False en caso contrario.
-    :rtype: bool
+    :param filepath_inscripciones: Ruta del archivo de inscripciones (inscripciones.json). Default: INSCRIPCIONES_FILE
+    :return: True si se eliminó al miembro (y sus inscripciones) con éxito, False en caso contrario.
     """
-    miembros = datos.cargar_datos(filepath)
+    miembros = datos.cargar_datos(filepath_miembros)
     miembros_iniciales = len(miembros)
 
-    # Filtramos la lista, manteniendo solo los que NO coincidan con el ID
+    # Filtramos la lista de miembros, excluyendo el que vamos a eliminar
     miembros = [m for m in miembros if m.get('id_miembro') != id_miembro]
 
     if len(miembros) < miembros_iniciales:
-        datos.guardar_datos(filepath, miembros)
+        # Guardamos la lista de miembros actualizada
+        datos.guardar_datos(filepath_miembros, miembros)
+
+        # --- Eliminar también sus inscripciones ---
+        if os.path.exists(filepath_inscripciones):
+            inscripciones = datos.cargar_datos(filepath_inscripciones)
+            inscripciones = [i for i in inscripciones if i.get('id_miembro') != id_miembro]
+            datos.guardar_datos(filepath_inscripciones, inscripciones)
+
         return True
 
     return False
-
 
 def crear_clase(
         filepath: str,
