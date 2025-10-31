@@ -6,17 +6,24 @@ Maneja la interacción con el usuario (menús, entradas, salidas) usando la libr
 """
 
 import os
-
-import crud
+from typing import Optional
 
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import IntPrompt, Prompt
 from rich.table import Table
-from typing import Optional, List
 
-from crud import actualizar_miembro, eliminar_miembro, dar_baja_miembro_de_clase, \
-    listar_clases_inscritas_por_miembro
+import crud
+from crud import (
+    actualizar_miembro,
+    buscar_miembro_por_id,
+    crear_miembro,
+    dar_baja_miembro_de_clase,
+    eliminar_miembro,
+    leer_todos_los_miembros,
+    listar_clases_inscritas_por_miembro,
+    ver_cupos_disponibles,
+)
 
 console = Console()
 
@@ -32,9 +39,9 @@ def solicitar_tipo_suscripcion(permitir_vacio: bool = False) -> Optional[str]:
     """
     Muestra un menú para que el usuario elija el tipo de suscripción.
 
-    :param permitir_vacio: Si es True, incluye la opción '0. No cambiar' (útil para actualizaciones).
+    :param permitir_vacio: Si es True, incluye la opción '0. No cambiar'.
     :type permitir_vacio: bool
-    :return: El tipo de suscripción seleccionado (ej. 'Mensual'), None si se elige 'No cambiar', o None en caso de error.
+    :return: El tipo de suscripción seleccionado.
     :rtype: Optional[str]
     """
     console.print("\nSeleccione el tipo de suscripción:", style="cyan")
@@ -80,7 +87,8 @@ def menu_crear_miembro(filepath: str):
     )
 
     if miembro_creado:
-        console.print(Panel(f"¡Miembro registrado con éxito!\n   ID Asignado: {miembro_creado['id_miembro']}",
+        console.print(Panel(f"¡Miembro registrado con éxito!\n"
+                            f"   ID Asignado: {miembro_creado['id_miembro']}",
                             border_style="green", title="Éxito"))
     else:
         console.print(Panel("No se pudo registrar al miembro.",
@@ -104,7 +112,8 @@ def menu_leer_miembros(filepath: str):
         console.print("No hay miembros registrados.")
         return
 
-    tabla = Table(title="Miembros Registrados", border_style="blue", show_header=True, header_style="bold magenta")
+    tabla = Table(title="Miembros Registrados", border_style="blue",
+                  show_header=True, header_style="bold magenta")
     tabla.add_column("ID", style="dim", width=5)
     tabla.add_column("Nombre Completo")
     tabla.add_column("Suscripción", justify="center")
@@ -146,7 +155,8 @@ def menu_crear_clase(filepath: str):
             border_style="green", title="Éxito"
         ))
     else:
-        console.print(Panel("No se pudo registrar la clase.", border_style="red", title="Error"))
+        console.print(Panel("No se pudo registrar la clase.",
+                            border_style="red", title="Error"))
 
 
 def menu_leer_clases(filepath: str):
@@ -167,7 +177,8 @@ def menu_leer_clases(filepath: str):
         console.print("No hay clases registradas.")
         return
 
-    tabla = Table(title="Clases Registradas", border_style="blue", show_header=True, header_style="bold magenta")
+    tabla = Table(title="Clases Registradas", border_style="blue",
+                  show_header=True, header_style="bold magenta")
     tabla.add_column("ID", style="dim", width=5)
     tabla.add_column("Clase")
     tabla.add_column("Instructor")
@@ -221,7 +232,7 @@ def menu_mostrar_miembros_inscritos(filepath_i: str, filepath_m: str):
 
     :param filepath_i: Ruta del archivo de inscripciones.
     :type filepath_i: str
-    :param filepath_m: Ruta del archivo de miembros (necesario para obtener los detalles de los miembros).
+    :param filepath_m: Ruta del archivo de miembros.
     :type filepath_m: str
     :return: None
     :rtype: None
@@ -235,13 +246,15 @@ def menu_mostrar_miembros_inscritos(filepath_i: str, filepath_m: str):
         console.print(f"No hay miembros inscritos en la clase ID '{id_clase}'.")
         return
 
-    tabla = Table(title=f"Miembros Inscritos en Clase ID {id_clase}", border_style="blue", show_header=True, header_style="bold magenta")
+    tabla = Table(title=f"Miembros Inscritos en Clase ID {id_clase}",
+        border_style="blue", show_header=True, header_style="bold magenta")
     tabla.add_column("ID Miembro", style="dim", width=10)
     tabla.add_column("Nombre Completo")
     tabla.add_column("Suscripción")
 
     for m in miembros:
-        tabla.add_row(m.get('id_miembro', 'N/D'), m.get('nombre', 'N/D'), m.get('tipo_suscripcion', 'N/D'))
+        tabla.add_row(m.get('id_miembro', 'N/D'), m.get('nombre', 'N/D'),
+                      m.get('tipo_suscripcion', 'N/D'))
 
     console.print(tabla)
 
@@ -271,55 +284,111 @@ def mostrar_menu_principal():
         "11. Ver cupos disponibles por clase\n\n"
         "0.Salir"
     )
-    console.print(Panel(menu_texto, title="SISTEMA DE GESTIÓN DE GIMNASIO", subtitle="Seleccione una opción", border_style="green"))
+    console.print(Panel(menu_texto, title="SISTEMA DE GESTIÓN DE GIMNASIO",
+        subtitle="Seleccione una opción", border_style="green"))
+
+
+
+
+def accion_crear_miembro(path_miembros):
+    """Crear un nuevo miembro."""
+    nombre = Prompt.ask("Ingrese el nombre del nuevo miembro")
+    tipo = Prompt.ask("Ingrese el tipo de suscripción (Mensual, Anual, etc.)")
+
+    nuevo = crear_miembro(path_miembros, nombre, tipo)
+    console.print(f"[green]Miembro creado correctamente:[/green] {nuevo}")
+
+
+def accion_listar_miembros(path_miembros):
+    """Listar todos los miembros registrados."""
+    miembros = leer_todos_los_miembros(path_miembros)
+    if not miembros:
+        console.print("[yellow]No hay miembros registrados.[/yellow]")
+    else:
+        console.print("\n[bold cyan]LISTA DE MIEMBROS[/bold cyan]\n")
+        for m in miembros:
+            console.print(f"[cyan]{m['id_miembro']}[/cyan] -"
+                          f" {m['nombre']} ({m['tipo_suscripcion']})")
+
+
+def accion_buscar_miembro(path_miembros):
+    """Buscar un miembro por su ID."""
+    id_m = Prompt.ask("Ingrese el ID del miembro que desea buscar")
+    miembro = buscar_miembro_por_id(path_miembros, id_m)
+    if miembro:
+        console.print(f"[green]Miembro encontrado:[/green] {miembro}")
+    else:
+        console.print("[red]No se encontró ningún miembro con ese ID.[/red]")
+
+
+def accion_actualizar_miembro(path_miembros):
+    """Actualizar los datos de un miembro."""
+    id_m = Prompt.ask("Ingrese el ID del miembro que desea actualizar")
+    nombre = Prompt.ask("Nuevo nombre (deje vacío para no modificar)", default="")
+    tipo = Prompt.ask("Nuevo tipo de suscripción (deje vacío para no modificar)",
+                      default="")
+
+    datos_nuevos = {}
+    if nombre:
+        datos_nuevos["nombre"] = nombre
+    if tipo:
+        datos_nuevos["tipo_suscripcion"] = tipo
+
+    actualizado = actualizar_miembro(path_miembros, id_m, datos_nuevos)
+    if actualizado:
+        console.print(f"[green]Miembro actualizado:[/green] {actualizado}")
+    else:
+        console.print("[red]No se encontró el miembro para actualizar.[/red]")
+
+
+def accion_eliminar_miembro(path_miembros):
+    """Eliminar un miembro existente."""
+    id_m = Prompt.ask("Ingrese el ID del miembro a eliminar")
+    if eliminar_miembro(path_miembros, id_m):
+        console.print(f"[green]Miembro con ID {id_m} eliminado correctamente.[/green]")
+    else:
+        console.print("[red]No se encontró el miembro con ese ID.[/red]")
 
 
 def submenu_miembros(path_miembros):
+    """
+    Submenú principal para la gestión de miembros.
+    Usa un diccionario de acciones para evitar if/elif repetitivos.
+    """
+
+    acciones = {
+        "1": lambda: accion_crear_miembro(path_miembros),
+        "2": lambda: accion_listar_miembros(path_miembros),
+        "3": lambda: accion_buscar_miembro(path_miembros),
+        "4": lambda: accion_actualizar_miembro(path_miembros),
+        "5": lambda: accion_eliminar_miembro(path_miembros),
+    }
+
     while True:
-        console.print(Panel(
+        console.print(Panel.fit(
+            "[bold cyan]SUBMENÚ - GESTIÓN DE MIEMBROS[/bold cyan]\n"
             "1. Registrar nuevo miembro\n"
             "2. Ver todos los miembros\n"
-            "3. Actualizar miembro\n"
-            "4. Eliminar miembro\n"
-            "0. Volver al menú principal",
-            title="Submenú - Gestión de Miembros",
-            border_style="cyan"
+            "3. Buscar miembro por ID\n"
+            "4. Actualizar miembro\n"
+            "5. Eliminar miembro\n"
+            "0. Volver al menú principal"
         ))
 
-        opcion = Prompt.ask("Opción", choices=["0", "1", "2", "3", "4"], show_choices=False)
+        opcion = Prompt.ask("Seleccione una opción",
+            choices=["0", "1", "2", "3", "4", "5"], show_choices=False)
 
-        if opcion == "1":
-            menu_crear_miembro(path_miembros)
-        elif opcion == "2":
-            menu_leer_miembros(path_miembros)
-        elif opcion == "3":
-            id_miembro = Prompt.ask("Ingrese el ID de miembro:")
-            console.print("\n[bold cyan]Actualizar Miembro[/bold cyan]")
-            datos_nuevos = {}
-            nombre = Prompt.ask("Nuevo nombre (opcional)", default="")
-            tipo = Prompt.ask("Nuevo tipo de membresía (Mensual/Anual, opcional)", default="")
-            if nombre:
-                datos_nuevos["nombre"] = nombre
-            if tipo:
-                datos_nuevos["tipo_suscripcion"] = tipo
-            if actualizar_miembro(path_miembros, id_miembro, datos_nuevos):
-                console.print("[green]✓ Miembro actualizado exitosamente[/green]")
-            else:
-                console.print("[red]✗ No se encontró el miembro[/red]")
-        elif opcion == "4":
-            id_miembro = Prompt.ask("Ingrese el ID del miembro a eliminar")
-            confirmar = Prompt.ask(f"¿Eliminar miembro {id_miembro}?", choices=["si", "no"], default="no")
-            if confirmar == "si":
-                if eliminar_miembro(path_miembros, id_miembro):
-                    console.print("[green]Miembro eliminado.[/green]")
-                else:
-                    console.print("[red]No se encontró el miembro.[/red]")
-        elif opcion == "0":
+        if opcion == "0":
+            console.print("[yellow]Volviendo al menú principal...[/yellow]")
             break
 
+        accion = acciones.get(opcion)
+        if accion:
+            accion()
+        else:
+            console.print("[red]Opción inválida.[/red]")
+
         Prompt.ask("\nPresione Enter para continuar...", default="", show_default=False)
-
-
 def submenu_clases(path_clases):
     while True:
         console.print(Panel(
@@ -330,7 +399,8 @@ def submenu_clases(path_clases):
             border_style="cyan"
         ))
 
-        opcion = Prompt.ask("Opción", choices=["0", "1", "2"], show_choices=False)
+        opcion = Prompt.ask("Opción", choices=["0", "1", "2"],
+                            show_choices=False)
 
         if opcion == "1":
             menu_crear_clase(path_clases)
@@ -339,7 +409,8 @@ def submenu_clases(path_clases):
         elif opcion == "0":
             break
 
-        Prompt.ask("\nPresione Enter para continuar...", default="", show_default=False)
+        Prompt.ask("\nPresione Enter para continuar...", default="",
+                   show_default=False)
 
 
 def submenu_inscripciones(path_inscripciones, path_clases, path_miembros):
@@ -355,7 +426,8 @@ def submenu_inscripciones(path_inscripciones, path_clases, path_miembros):
             border_style="cyan"
         ))
 
-        opcion = Prompt.ask("Opción", choices=[str(i) for i in range(6)], show_choices=False)
+        opcion = Prompt.ask("Opción", choices=[str(i) for i in range(6)],
+                            show_choices=False)
 
         if opcion == "1":
             menu_inscribir_miembro(path_inscripciones, path_clases)
@@ -370,19 +442,21 @@ def submenu_inscripciones(path_inscripciones, path_clases, path_miembros):
                 console.print("[red]No se encontró inscripción[/red]")
         elif opcion == "4":
             id_miembro = Prompt.ask("Ingrese el ID del miembro")
-            clases = listar_clases_inscritas_por_miembro(path_inscripciones, path_clases, id_miembro)
+            clases = listar_clases_inscritas_por_miembro(path_inscripciones,
+                    path_clases, id_miembro)
             if not clases:
-                console.print(f"El miembro ID {id_miembro} no está inscrito en ninguna clase.")
+                console.print(f"El miembro ID {id_miembro} no está inscrito"
+                              f" en ninguna clase.")
             else:
                 tabla = Table(title=f"Clases de Miembro ID {id_miembro}")
                 tabla.add_column("ID Clase")
                 tabla.add_column("Clase")
                 tabla.add_column("Instructor")
                 for c in clases:
-                    tabla.add_row(c.get("id_clase", ""), c.get("nombre_clase", ""), c.get("instructor", ""))
+                    tabla.add_row(c.get("id_clase", ""), c.get("nombre_clase", ""),
+                                  c.get("instructor", ""))
                 console.print(tabla)
         elif opcion == "5":
-            from crud import ver_cupos_disponibles
             ver_cupos_disponibles()
         elif opcion == "0":
             break

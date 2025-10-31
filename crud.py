@@ -6,14 +6,15 @@ Contiene todas las funciones para gestionar el gimnasio (CRUD de Miembros y Clas
 y gestión de Inscripciones).
 """
 
+import csv
+import json
+import os
 from typing import Any, Dict, List, Optional
-import datos
 
 from rich.console import Console
 from rich.table import Table
-import csv
-import os
-import json
+
+import datos
 
 console = Console()
 
@@ -44,8 +45,7 @@ def generar_nuevo_id(entidad: str, lista: List[Dict[str, Any]]) -> str:
     for item in lista:
         try:
             current_id = int(item.get(id_key, 0))
-            if current_id > max_id:
-                max_id = current_id
+            max_id = max(max_id, current_id)
         except ValueError:
             # Ignora IDs no numéricos
             pass
@@ -151,14 +151,15 @@ def actualizar_miembro(
     return None
 
 
-def eliminar_miembro(filepath_miembros: str, id_miembro: str, filepath_inscripciones: str = INSCRIPCIONES_FILE) -> bool:
+def eliminar_miembro(filepath_miembros: str, id_miembro: str,
+    filepath_inscripciones: str = INSCRIPCIONES_FILE) -> bool:
     """
     (DELETE) Elimina un miembro y todas sus inscripciones asociadas.
 
-    :param filepath_miembros: Ruta del archivo donde se guardan los miembros (miembros.csv).
+    :param filepath_miembros: Ruta del archivo donde se guardan los miembros.
     :param id_miembro: ID del miembro a eliminar.
-    :param filepath_inscripciones: Ruta del archivo de inscripciones (inscripciones.json). Default: INSCRIPCIONES_FILE
-    :return: True si se eliminó al miembro (y sus inscripciones) con éxito, False en caso contrario.
+    :param filepath_inscripciones: Ruta del archivo de inscripciones.
+    :return: True si se eliminó al miembro con éxito, sino False.
     """
     miembros = datos.cargar_datos(filepath_miembros)
     miembros_iniciales = len(miembros)
@@ -173,7 +174,8 @@ def eliminar_miembro(filepath_miembros: str, id_miembro: str, filepath_inscripci
         # --- Eliminar también sus inscripciones ---
         if os.path.exists(filepath_inscripciones):
             inscripciones = datos.cargar_datos(filepath_inscripciones)
-            inscripciones = [i for i in inscripciones if i.get('id_miembro') != id_miembro]
+            inscripciones = [i for i in inscripciones if i.get('id_miembro')
+                             != id_miembro]
             datos.guardar_datos(filepath_inscripciones, inscripciones)
 
         return True
@@ -260,9 +262,8 @@ def inscribir_miembro_en_clase(
     Realiza validaciones de existencia de clase, duplicado de inscripción y cupo máximo.
     Si es exitoso, crea la inscripción y guarda los datos.
 
-    :param filepath_inscripciones: Ruta del archivo de inscripciones (inscripciones.json).
+    :param filepath_inscripciones: Ruta del archivo de inscripciones.
     :type filepath_inscripciones: str
-    :param filepath_clases: Ruta del archivo de clases (clases.csv), necesario para obtener datos de la clase.
     :type filepath_clases: str
     :param id_miembro: ID del miembro a inscribir.
     :type id_miembro: str
@@ -281,17 +282,20 @@ def inscribir_miembro_en_clase(
     # 1. Validación de duplicado
     inscritos_clase = [i for i in inscripciones if i['id_clase'] == id_clase]
     if any(i['id_miembro'] == id_miembro for i in inscritos_clase):
-        return (False, f" Error: El miembro '{id_miembro}' ya está inscrito en la clase '{clase['nombre_clase']}'.")
+        return (False, f" Error: El miembro '{id_miembro}' ya está inscrito en la clase"
+                       f" '{clase['nombre_clase']}'.")
 
     # 2. Validación de cupo
     cupo_maximo = int(clase.get('cupo_maximo', 0))
     if len(inscritos_clase) >= cupo_maximo:
-        return (False, f" Error: La clase '{clase['nombre_clase']}' ha alcanzado su cupo máximo ({cupo_maximo}).")
+        return (False, f" Error: La clase '{clase['nombre_clase']}' alcanzo su cupo"
+                       f" máximo ({cupo_maximo}).")
 
     nueva_inscripcion = {'id_miembro': id_miembro, 'id_clase': id_clase}
     inscripciones.append(nueva_inscripcion)
     datos.guardar_datos(filepath_inscripciones, inscripciones)
-    return (True, f"¡Inscripción exitosa! Miembro {id_miembro} en clase {clase['nombre_clase']}.")
+    return (True, f"¡Inscripción exitosa! Miembro {id_miembro} en clase"
+                  f" {clase['nombre_clase']}.")
 
 
 def dar_baja_miembro_de_clase(filepath: str, id_miembro: str, id_clase: str) -> bool:
@@ -326,7 +330,8 @@ def dar_baja_miembro_de_clase(filepath: str, id_miembro: str, id_clase: str) -> 
     return False
 
 
-def listar_miembros_inscritos_en_clase(filepath_inscripciones: str, filepath_miembros: str, id_clase: str) -> List[
+def listar_miembros_inscritos_en_clase(filepath_inscripciones: str,
+    filepath_miembros: str, id_clase: str) -> List[
     Dict[str, Any]]:
     """
     Muestra la lista de miembros inscritos en una clase específica.
@@ -334,7 +339,7 @@ def listar_miembros_inscritos_en_clase(filepath_inscripciones: str, filepath_mie
     Obtiene los IDs de los miembros inscritos en la clase dada, y luego
     busca los detalles completos de esos miembros.
 
-    :param filepath_inscripciones: Ruta del archivo de inscripciones (inscripciones.json).
+    :param filepath_inscripciones: Ruta del archivo de inscripciones.
     :type filepath_inscripciones: str
     :param filepath_miembros: Ruta del archivo de miembros (miembros.csv).
     :type filepath_miembros: str
@@ -346,7 +351,8 @@ def listar_miembros_inscritos_en_clase(filepath_inscripciones: str, filepath_mie
     inscripciones = datos.cargar_datos(filepath_inscripciones)
     miembros_todos = datos.cargar_datos(filepath_miembros)
 
-    ids_inscritos = [i['id_miembro'] for i in inscripciones if i['id_clase'] == id_clase]
+    ids_inscritos = [i['id_miembro'] for i in inscripciones if
+                     i['id_clase'] == id_clase]
 
     miembros_inscritos = [
         m for m in miembros_todos
@@ -355,7 +361,8 @@ def listar_miembros_inscritos_en_clase(filepath_inscripciones: str, filepath_mie
     return miembros_inscritos
 
 
-def listar_clases_inscritas_por_miembro(filepath_inscripciones: str, filepath_clases: str, id_miembro: str) -> List[
+def listar_clases_inscritas_por_miembro(filepath_inscripciones: str,
+    filepath_clases: str, id_miembro: str) -> List[
     Dict[str, Any]]:
     """
     Muestra todas las clases en las que está inscrito un miembro.
@@ -363,7 +370,7 @@ def listar_clases_inscritas_por_miembro(filepath_inscripciones: str, filepath_cl
     Obtiene los IDs de las clases en las que está inscrito el miembro dado,
     y luego busca los detalles completos de esas clases.
 
-    :param filepath_inscripciones: Ruta del archivo de inscripciones (inscripciones.json).
+    :param filepath_inscripciones: Ruta del archivo de inscripciones.
     :type filepath_inscripciones: str
     :param filepath_clases: Ruta del archivo de clases (clases.csv).
     :type filepath_clases: str
@@ -382,6 +389,9 @@ def listar_clases_inscritas_por_miembro(filepath_inscripciones: str, filepath_cl
         if c.get('id_clase') in ids_clases
     ]
     return clases_inscritas
+
+num_columnas=4
+
 def ver_cupos_disponibles():
     """
     Muestra los cupos disponibles por clase leyendo clases.csv e inscripciones.json.
@@ -398,18 +408,20 @@ def ver_cupos_disponibles():
     clases = []
     with open(CLASES_FILE, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
-        next(reader, None)  # <- 🔹 omite la primera fila
+        next(reader, None)
         for fila in reader:
             if not fila:
                 continue
-            if len(fila) < 4:
-                console.print(f"[yellow]La clase con ID {fila[0]} no tiene cupos definidos. Se omitirá.[/yellow]")
+            if len(fila) < num_columnas:
+                console.print(f"[yellow]La clase con ID {fila[0]} "
+                f"no tiene cupos definidos. Se omitirá.[/yellow]")
                 continue
 
             try:
                 cupos = int(fila[3])
             except ValueError:
-                console.print(f"[red]Error: cupos inválidos en la clase {fila[1]} ({fila[3]}).[/red]")
+                console.print(f"[red]Error: cupos inválidos en la "
+                              f"clase {fila[1]} ({fila[3]}).[/red]")
                 continue
 
             clases.append({

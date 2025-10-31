@@ -1,5 +1,6 @@
-import main
 from rich.console import Console
+
+import main
 
 
 def test_import_main_has_console():
