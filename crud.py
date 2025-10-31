@@ -6,7 +6,6 @@ Contiene todas las funciones para gestionar el gimnasio (CRUD de Miembros y Clas
 y gestión de Inscripciones).
 """
 
-
 from typing import Any, Dict, List, Optional
 import datos
 
@@ -21,8 +20,6 @@ console = Console()
 INFO_DIR = "info"
 CLASES_FILE = os.path.join(INFO_DIR, "clases.csv")
 INSCRIPCIONES_FILE = os.path.join(INFO_DIR, "inscripciones.json")
-
-# --- Funciones Auxiliares ---
 
 def generar_nuevo_id(entidad: str, lista: List[Dict[str, Any]]) -> str:
     """
@@ -55,8 +52,6 @@ def generar_nuevo_id(entidad: str, lista: List[Dict[str, Any]]) -> str:
 
     return str(max_id + 1)
 
-
-# --- CRUD de Miembros (Persistencia en miembros.csv) ---
 
 def crear_miembro(
         filepath: str,
@@ -183,8 +178,6 @@ def eliminar_miembro(filepath: str, id_miembro: str) -> bool:
     return False
 
 
-# --- CRUD de Clases (Persistencia en clases.csv) ---
-
 def crear_clase(
         filepath: str,
         nombre_clase: str,
@@ -253,12 +246,6 @@ def buscar_clase_por_id(filepath: str, id_clase: str) -> Optional[Dict[str, Any]
             return clase
     return None
 
-
-# Las funciones de actualización y eliminación de clases son similares a las de Miembros,
-# se omiten por espacio, pero se implementarían de forma análoga.
-
-# --- Gestión de Inscripciones (Persistencia en inscripciones.json) ---
-
 def inscribir_miembro_en_clase(
         filepath_inscripciones: str,
         filepath_clases: str,
@@ -299,7 +286,6 @@ def inscribir_miembro_en_clase(
     if len(inscritos_clase) >= cupo_maximo:
         return (False, f" Error: La clase '{clase['nombre_clase']}' ha alcanzado su cupo máximo ({cupo_maximo}).")
 
-    # 3. Creación de inscripción
     nueva_inscripcion = {'id_miembro': id_miembro, 'id_clase': id_clase}
     inscripciones.append(nueva_inscripcion)
     datos.guardar_datos(filepath_inscripciones, inscripciones)
@@ -326,7 +312,6 @@ def dar_baja_miembro_de_clase(filepath: str, id_miembro: str, id_clase: str) -> 
     inscripciones = datos.cargar_datos(filepath)
     inscripciones_iniciales = len(inscripciones)
 
-    # CORRECCIÓN: Usar 'and' para asegurar que ambos IDs coincidan en la misma inscripción
     inscripciones = [
         i for i in inscripciones
         if not (i.get('id_miembro') == id_miembro and i.get('id_clase') == id_clase)
@@ -408,7 +393,6 @@ def ver_cupos_disponibles():
         console.print("[red]El archivo de inscripciones no existe.[/red]")
         return
 
-    # Leer clases desde CSV
     clases = []
     with open(CLASES_FILE, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
@@ -433,14 +417,12 @@ def ver_cupos_disponibles():
                 "cupos": cupos
             })
 
-    # Leer inscripciones
     try:
         with open(INSCRIPCIONES_FILE, "r", encoding="utf-8") as f:
             inscripciones = json.load(f)
     except (json.JSONDecodeError, FileNotFoundError):
         inscripciones = []
 
-    # Contar inscritos por clase
     inscritos_por_clase = {}
     for insc in inscripciones:
         id_clase = str(insc.get("id_clase"))

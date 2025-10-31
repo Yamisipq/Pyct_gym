@@ -5,7 +5,6 @@ Punto de entrada de la aplicación.
 Maneja la interacción con el usuario (menús, entradas, salidas) usando la librería rich.
 """
 
-
 import os
 
 import crud
@@ -121,9 +120,6 @@ def menu_leer_miembros(filepath: str):
 
     console.print(tabla)
 
-# Las funciones de actualización y eliminación de miembros se omiten para enfocar la corrección en la estructura.
-
-# --- Funciones de Interfaz de Usuario con Rich (Clases) ---
 
 def menu_crear_clase(filepath: str):
     """
@@ -187,7 +183,6 @@ def menu_leer_clases(filepath: str):
 
     console.print(tabla)
 
-# --- Funciones de Interfaz de Usuario con Rich (Inscripciones) ---
 
 def menu_inscribir_miembro(filepath_i: str, filepath_c: str):
     """
@@ -205,7 +200,6 @@ def menu_inscribir_miembro(filepath_i: str, filepath_c: str):
     """
     console.print(Panel.fit("Inscribir Miembro en Clase"))
 
-    # Se asume que el usuario conoce los IDs, si no, se debería listar primero.
     id_miembro = Prompt.ask("Ingrese el ID del Miembro")
     id_clase = Prompt.ask("Ingrese el ID de la Clase")
 
@@ -251,10 +245,6 @@ def menu_mostrar_miembros_inscritos(filepath_i: str, filepath_m: str):
 
     console.print(tabla)
 
-# La función para dar de baja y listar clases por miembro se implementarían de forma similar.
-
-# --- Menús Principales ---
-
 def mostrar_menu_principal():
     """
     Imprime el menú principal de la aplicación en la consola.
@@ -298,7 +288,6 @@ def main():
         os.makedirs(DIRECTORIO_DATOS)
         console.print(f"Directorio '{DIRECTORIO_DATOS}' creado.")
 
-    # Rutas de archivos fijas para el sistema
     path_miembros = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_MIEMBROS)
     path_clases = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_CLASES)
     path_inscripciones = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_INSCRIPCIONES)
@@ -322,19 +311,17 @@ def main():
 
             datos_nuevos = {}
 
-            # Definir los campos que se pueden actualizar (excluyendo id_miembro y fecha_registro)
+
             campos_actualizables = {
                 'nombre': 'Nuevo nombre',
                 'tipo_membresia': 'Nuevo tipo de membresía'
             }
 
-            # Iterar sobre los campos
             for campo, mensaje in campos_actualizables.items():
                 valor = Prompt.ask(f"{mensaje} (opcional)", default="")
                 if valor:  # Solo agregar si no está vacío
                     datos_nuevos[campo] = valor
 
-            # Llamar a la función con el diccionario real
             miembro_actualizado = actualizar_miembro(path_miembros, id_miembro, datos_nuevos)
 
             if miembro_actualizado:
@@ -343,7 +330,7 @@ def main():
                 console.print(f"\n[red]✗[/red] No se encontró el miembro con ID: {id_miembro}")
 
         elif opcion == '4':
-            id_miembro = Prompt.ask("Ingrese el ID del miembro a eliminar:", show_choices=False)
+            id_miembro = Prompt.ask("Ingrese el ID del miembro a eliminar5", show_choices=False)
 
             confirmar = Prompt.ask(
 
@@ -409,7 +396,7 @@ def main():
                 from crud import ver_cupos_disponibles
                 ver_cupos_disponibles()
         elif opcion == '0':
-            console.print("\n¡Hasta luego! Gracias por usar la gestión de gimnasio.")
+            console.print("\n¡Hasta luego!")
             break
         else:
             console.print("[red]Please select one of the available options[/red]")
