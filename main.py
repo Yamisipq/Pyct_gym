@@ -136,7 +136,7 @@ def menu_crear_clase(filepath: str):
     console.print(Panel.fit("Registrar Nueva Clase"))
     nombre_clase = Prompt.ask("Nombre de la Clase")
     instructor = Prompt.ask("Instructor")
-    cupo_maximo = IntPrompt.ask("Cupo Máximo", default=10)
+    cupo_maximo = IntPrompt.ask("Cupo Máximo")
 
     clase_creada = crud.crear_clase(filepath, nombre_clase, instructor, cupo_maximo)
 
@@ -273,135 +273,152 @@ def mostrar_menu_principal():
     )
     console.print(Panel(menu_texto, title="SISTEMA DE GESTIÓN DE GIMNASIO", subtitle="Seleccione una opción", border_style="green"))
 
+
+def submenu_miembros(path_miembros):
+    while True:
+        console.print(Panel(
+            "1. Registrar nuevo miembro\n"
+            "2. Ver todos los miembros\n"
+            "3. Actualizar miembro\n"
+            "4. Eliminar miembro\n"
+            "0. Volver al menú principal",
+            title="Submenú - Gestión de Miembros",
+            border_style="cyan"
+        ))
+
+        opcion = Prompt.ask("Opción", choices=["0", "1", "2", "3", "4"], show_choices=False)
+
+        if opcion == "1":
+            menu_crear_miembro(path_miembros)
+        elif opcion == "2":
+            menu_leer_miembros(path_miembros)
+        elif opcion == "3":
+            id_miembro = Prompt.ask("Ingrese el ID de miembro:")
+            console.print("\n[bold cyan]Actualizar Miembro[/bold cyan]")
+            datos_nuevos = {}
+            nombre = Prompt.ask("Nuevo nombre (opcional)", default="")
+            tipo = Prompt.ask("Nuevo tipo de membresía (Mensual/Anual, opcional)", default="")
+            if nombre:
+                datos_nuevos["nombre"] = nombre
+            if tipo:
+                datos_nuevos["tipo_suscripcion"] = tipo
+            if actualizar_miembro(path_miembros, id_miembro, datos_nuevos):
+                console.print("[green]✓ Miembro actualizado exitosamente[/green]")
+            else:
+                console.print("[red]✗ No se encontró el miembro[/red]")
+        elif opcion == "4":
+            id_miembro = Prompt.ask("Ingrese el ID del miembro a eliminar")
+            confirmar = Prompt.ask(f"¿Eliminar miembro {id_miembro}?", choices=["si", "no"], default="no")
+            if confirmar == "si":
+                if eliminar_miembro(path_miembros, id_miembro):
+                    console.print("[green]Miembro eliminado.[/green]")
+                else:
+                    console.print("[red]No se encontró el miembro.[/red]")
+        elif opcion == "0":
+            break
+
+        Prompt.ask("\nPresione Enter para continuar...", default="", show_default=False)
+
+
+def submenu_clases(path_clases):
+    while True:
+        console.print(Panel(
+            "1. Registrar nueva clase\n"
+            "2. Ver todas las clases\n"
+            "0. Volver al menú principal",
+            title="Submenú - Gestión de Clases",
+            border_style="cyan"
+        ))
+
+        opcion = Prompt.ask("Opción", choices=["0", "1", "2"], show_choices=False)
+
+        if opcion == "1":
+            menu_crear_clase(path_clases)
+        elif opcion == "2":
+            menu_leer_clases(path_clases)
+        elif opcion == "0":
+            break
+
+        Prompt.ask("\nPresione Enter para continuar...", default="", show_default=False)
+
+
+def submenu_inscripciones(path_inscripciones, path_clases, path_miembros):
+    while True:
+        console.print(Panel(
+            "1. Inscribir miembro en clase\n"
+            "2. Listar miembros inscritos en una clase\n"
+            "3. Dar de baja miembro de clase\n"
+            "4. Ver clases de un miembro\n"
+            "5. Ver cupos disponibles\n"
+            "0. Volver al menú principal",
+            title="Submenú - Inscripciones",
+            border_style="cyan"
+        ))
+
+        opcion = Prompt.ask("Opción", choices=[str(i) for i in range(6)], show_choices=False)
+
+        if opcion == "1":
+            menu_inscribir_miembro(path_inscripciones, path_clases)
+        elif opcion == "2":
+            menu_mostrar_miembros_inscritos(path_inscripciones, path_miembros)
+        elif opcion == "3":
+            id_miembro = Prompt.ask("Ingrese el ID del miembro")
+            id_clase = Prompt.ask("Ingrese el ID de la clase")
+            if dar_baja_miembro_de_clase(path_inscripciones, id_miembro, id_clase):
+                console.print("[green]Miembro dado de baja exitosamente[/green]")
+            else:
+                console.print("[red]No se encontró inscripción[/red]")
+        elif opcion == "4":
+            id_miembro = Prompt.ask("Ingrese el ID del miembro")
+            clases = listar_clases_inscritas_por_miembro(path_inscripciones, path_clases, id_miembro)
+            if not clases:
+                console.print(f"El miembro ID {id_miembro} no está inscrito en ninguna clase.")
+            else:
+                tabla = Table(title=f"Clases de Miembro ID {id_miembro}")
+                tabla.add_column("ID Clase")
+                tabla.add_column("Clase")
+                tabla.add_column("Instructor")
+                for c in clases:
+                    tabla.add_row(c.get("id_clase", ""), c.get("nombre_clase", ""), c.get("instructor", ""))
+                console.print(tabla)
+        elif opcion == "5":
+            from crud import ver_cupos_disponibles
+            ver_cupos_disponibles()
+        elif opcion == "0":
+            break
+
+        Prompt.ask("\nPresione Enter para continuar...", default="", show_default=False)
+
+
 def main():
-    """
-    Función principal que ejecuta el bucle del menú.
-
-    Inicializa el directorio de datos, define las rutas de los archivos
-    y maneja la navegación del menú principal, llamando a las funciones
-    de UI correspondientes a cada opción.
-
-    :return: None
-    :rtype: None
-    """
     if not os.path.exists(DIRECTORIO_DATOS):
         os.makedirs(DIRECTORIO_DATOS)
-        console.print(f"Directorio '{DIRECTORIO_DATOS}' creado.")
 
     path_miembros = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_MIEMBROS)
     path_clases = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_CLASES)
     path_inscripciones = os.path.join(DIRECTORIO_DATOS, NOMBRE_ARCHIVO_INSCRIPCIONES)
 
-    console.print(f"\nSistema de datos inicializado en {DIRECTORIO_DATOS}.")
-
     while True:
-        mostrar_menu_principal()
-        opcion = Prompt.ask("Opción", choices=[str(i) for i in range(12)], show_choices=False)
+        console.print(Panel(
+            "1. Gestión de Miembros\n"
+            "2. Gestión de Clases\n"
+            "3. Gestión de Inscripciones\n"
+            "0. Salir",
+            title="Menú Principal",
+            border_style="green"
+        ))
 
-        if opcion == '1':
-            menu_crear_miembro(path_miembros)
-        elif opcion == '2':
-            menu_leer_miembros(path_miembros)
-        elif opcion == '3':
-            id_miembro = Prompt.ask("Ingrese el ID de miembro:", show_choices=False)
+        opcion = Prompt.ask("Opción", choices=["0", "1", "2", "3"], show_choices=False)
 
-            # Recolectar los datos que se quieren actualizar
-            console.print("\n[bold cyan]Actualizar Miembro[/bold cyan]")
-            console.print("Deje en blanco los campos que no desea modificar\n")
-
-            datos_nuevos = {}
-
-
-            campos_actualizables = {
-                'nombre': 'Nuevo nombre',
-                'tipo_membresia': 'Nuevo tipo de membresía'
-            }
-
-            for campo, mensaje in campos_actualizables.items():
-                valor = Prompt.ask(f"{mensaje} (opcional)", default="")
-                if valor:  # Solo agregar si no está vacío
-                    datos_nuevos[campo] = valor
-
-            miembro_actualizado = actualizar_miembro(path_miembros, id_miembro, datos_nuevos)
-
-            if miembro_actualizado:
-                console.print(f"\n[green]✓[/green] Miembro actualizado exitosamente")
-            else:
-                console.print(f"\n[red]✗[/red] No se encontró el miembro con ID: {id_miembro}")
-
-        elif opcion == '4':
-            id_miembro = Prompt.ask("Ingrese el ID del miembro a eliminar5", show_choices=False)
-
-            confirmar = Prompt.ask(
-
-                f"¿Está seguro de eliminar el miembro {id_miembro}?",
-                choices=["si", "no"],default="no")
-
-            if confirmar.lower() == "si":
-
-                if eliminar_miembro(path_miembros, id_miembro):
-
-                    console.print(f"\n[green]✓[/green] Miembro eliminado exitosamente")
-
-                else:
-                    console.print(f"\n[red]✗[/red] No se encontró el miembro con ID: {id_miembro}")
-            else:
-                console.print("\n[yellow]Operación cancelada[/yellow]")
-
-        elif opcion == '5':
-            menu_crear_clase(path_clases)
-        elif opcion == '6':
-            menu_leer_clases(path_clases)
-
-        elif opcion == '7':
-            menu_inscribir_miembro(path_inscripciones, path_clases)
-        elif opcion == '8':
-            menu_mostrar_miembros_inscritos(path_inscripciones, path_miembros)
-        elif opcion == '9':
-            id_miembro = Prompt.ask("Ingrese el ID del miembro")
-            id_clase = Prompt.ask("Ingrese el ID de la clase")
-
-            exito = dar_baja_miembro_de_clase(path_inscripciones, id_miembro, id_clase)
-
-            if exito:
-                console.print(Panel("Miembro dado de baja exitosamente.", border_style="green", title="Éxito"))
-            else:
-                console.print(Panel("No se encontró inscripción con esos datos.", border_style="red", title="Error"))
-
-        elif opcion == '10':
-            console.print(Panel.fit("Clases de un Miembro"))
-            id_miembro = Prompt.ask("Ingrese el ID del miembro")
-
-            clases = listar_clases_inscritas_por_miembro(path_inscripciones, path_clases, id_miembro)
-
-            if not clases:
-                console.print(f"El miembro ID {id_miembro} no está inscrito en ninguna clase.")
-            else:
-                tabla = Table(title=f"Clases de Miembro ID {id_miembro}", border_style="blue", show_header=True,
-                              header_style="bold magenta")
-                tabla.add_column("ID Clase", style="dim", width=10)
-                tabla.add_column("Clase")
-                tabla.add_column("Instructor")
-
-
-                for c in clases:
-                    tabla.add_row(
-                        c.get('id_clase', 'N/D'),
-                        c.get('nombre_clase', 'N/D'),
-                        c.get('instructor', 'N/D')
-                    )
-
-                console.print(tabla)
-        elif opcion == "11":
-                from crud import ver_cupos_disponibles
-                ver_cupos_disponibles()
-        elif opcion == '0':
+        if opcion == "1":
+            submenu_miembros(path_miembros)
+        elif opcion == "2":
+            submenu_clases(path_clases)
+        elif opcion == "3":
+            submenu_inscripciones(path_inscripciones, path_clases, path_miembros)
+        elif opcion == "0":
             console.print("\n¡Hasta luego!")
             break
-        else:
-            console.print("[red]Please select one of the available options[/red]")
-
-        Prompt.ask("\nPresione Enter para continuar...", default="", show_default=False)
 
 if __name__ == "__main__":
     try:
