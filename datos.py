@@ -10,8 +10,8 @@ import json
 import os
 from typing import Any, Dict, List
 
-CAMPOS_MIEMBROS = ['id_miembro', 'nombre', 'tipo_suscripcion']
-CAMPOS_CLASES = ['id_clase', 'nombre_clase', 'instructor',  'cupo_maximo']
+CAMPOS_MIEMBROS = ["id_miembro", "nombre", "tipo_suscripcion"]
+CAMPOS_CLASES = ["id_clase", "nombre_clase", "instructor", "cupo_maximo"]
 
 
 def inicializar_archivo(filepath: str) -> None:
@@ -33,18 +33,19 @@ def inicializar_archivo(filepath: str) -> None:
 
     if not os.path.exists(filepath):
         campos = []
-        if 'miembros.csv' in filepath:
+        if "miembros.csv" in filepath:
             campos = CAMPOS_MIEMBROS
-        elif 'clases.csv' in filepath:
+        elif "clases.csv" in filepath:
             campos = CAMPOS_CLASES
 
-        if filepath.endswith('.csv'):
-            with open(filepath, mode='w', newline='', encoding='utf-8') as csv_file:
+        if filepath.endswith(".csv"):
+            with open(filepath, mode="w", newline="", encoding="utf-8") as csv_file:
                 writer = csv.DictWriter(csv_file, fieldnames=campos)
                 writer.writeheader()
-        elif filepath.endswith('.json'):
-            with open(filepath, mode='w', encoding='utf-8') as json_file:
+        elif filepath.endswith(".json"):
+            with open(filepath, mode="w", encoding="utf-8") as json_file:
                 json.dump([], json_file)
+
 
 def inicializar_archivos(*filepaths: str) -> None:
     """
@@ -52,6 +53,7 @@ def inicializar_archivos(*filepaths: str) -> None:
     """
     for filepath in filepaths:
         inicializar_archivo(filepath)
+
 
 def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
     """
@@ -68,16 +70,17 @@ def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
     inicializar_archivo(filepath)
 
     try:
-        if filepath.endswith('.csv'):
-            with open(filepath, mode='r', newline='', encoding='utf-8') as csv_file:
+        if filepath.endswith(".csv"):
+            with open(filepath, mode="r", newline="", encoding="utf-8") as csv_file:
                 lector = csv.DictReader(csv_file)
                 return [dict(row) for row in lector]
-        elif filepath.endswith('.json'):
-            with open(filepath, mode='r', encoding='utf-8') as json_file:
+        elif filepath.endswith(".json"):
+            with open(filepath, mode="r", encoding="utf-8") as json_file:
                 datos = json.load(json_file)
                 return datos if isinstance(datos, list) else []
     except (FileNotFoundError, json.JSONDecodeError):
         return []
+
 
 def guardar_datos(filepath: str, datos: List[Dict[str, Any]]) -> None:
     """
@@ -91,16 +94,16 @@ def guardar_datos(filepath: str, datos: List[Dict[str, Any]]) -> None:
     :rtype: None
     """
     campos = []
-    if 'miembros.csv' in filepath:
+    if "miembros.csv" in filepath:
         campos = CAMPOS_MIEMBROS
-    elif 'clases.csv' in filepath:
+    elif "clases.csv" in filepath:
         campos = CAMPOS_CLASES
 
-    if filepath.endswith('.csv'):
-        with open(filepath, mode='w', newline='', encoding='utf-8') as csv_file:
+    if filepath.endswith(".csv"):
+        with open(filepath, mode="w", newline="", encoding="utf-8") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=campos)
             writer.writeheader()
             writer.writerows(datos)
-    elif filepath.endswith('.json'):
-        with open(filepath, mode='w', encoding='utf-8') as json_file:
+    elif filepath.endswith(".json"):
+        with open(filepath, mode="w", encoding="utf-8") as json_file:
             json.dump(datos, json_file, indent=4)

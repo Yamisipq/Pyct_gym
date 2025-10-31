@@ -1,4 +1,3 @@
-
 import crud
 import datos
 
@@ -38,11 +37,13 @@ def test_inscribir_miembro_en_clase(tmp_path):
     datos.inicializar_archivo(path_i)
     miembro = crud.crear_miembro(path_m, "Luisa", "Anual")
     clase = crud.crear_clase(path_c, "Pilates", "Carlos", 1)
-    ok, msg = crud.inscribir_miembro_en_clase(path_i, path_c,
-        miembro["id_miembro"], clase["id_clase"])
+    ok, msg = crud.inscribir_miembro_en_clase(
+        path_i, path_c, miembro["id_miembro"], clase["id_clase"]
+    )
     assert ok is True
-    ok2, msg2 = crud.inscribir_miembro_en_clase(path_i, path_c,
-        miembro["id_miembro"], clase["id_clase"])
+    ok2, msg2 = crud.inscribir_miembro_en_clase(
+        path_i, path_c, miembro["id_miembro"], clase["id_clase"]
+    )
     assert ok2 is False
 
 
@@ -54,9 +55,11 @@ def test_cupo_maximo(tmp_path):
     m1 = crud.crear_miembro(path_m, "A", "Mensual")
     m2 = crud.crear_miembro(path_m, "B", "Mensual")
     clase = crud.crear_clase(path_c, "Box", "Entrenador", 1)
-    ok1, _ = crud.inscribir_miembro_en_clase(path_i, path_c, m1["id_miembro"],
-        clase["id_clase"])
+    ok1, _ = crud.inscribir_miembro_en_clase(
+        path_i, path_c, m1["id_miembro"], clase["id_clase"]
+    )
     assert ok1 is True
-    ok2, _ = crud.inscribir_miembro_en_clase(path_i, path_c, m2["id_miembro"],
-        clase["id_clase"])
+    ok2, _ = crud.inscribir_miembro_en_clase(
+        path_i, path_c, m2["id_miembro"], clase["id_clase"]
+    )
     assert ok2 is False
