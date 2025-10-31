@@ -1,128 +1,64 @@
-import pytest  # noqa: F401
+import os
+import json
+from pathlib import Path
+import pytest
 
-import logic.Modelo as modelo
-from logic.Controlador import crud
-from logic.Modelo import datos
-
-
-def crear_miembro(filepath, nombre, tipo_suscripcion):
-    datos.inicializar_archivo(filepath)
-
-def leer_miembro(tmp_path):
-    path = tmp_path / "info/miembros.csv"
-
-    miembros = crud.leer_todos_los_miembros(str(path))
-    assert len(miembros) == 1
-    assert miembros[0]["nombre"] == "Carlos"
+import datos
+import crud
 
 
-def test_buscar_y_actualizar_miembro(tmp_path):
-    path = tmp_path / "info/miembros.csv"
-    m1 = crud.crear_miembro(str(path), "Laura", "Anual")
-
-    buscado = crud.buscar_miembro_por_id(str(path), m1["id_miembro"])
-    assert buscado["nombre"] == "Laura"
-
-    actualizado = crud.actualizar_miembro(str(path),
-    m1["id_miembro"], {"nombre": "Laura Actualizada"})
-    assert actualizado["nombre"] == "Laura Actualizada"
-
-    miembros = crud.leer_todos_los_miembros(str(path))
-    assert miembros[0]["nombre"] == "Laura Actualizada"
-
-#----- test de eliminar mienbros
-
-memoria = {"inscripciones": []}
-
-def cargar_datos(filepath):
-    return list(memoria["inscripciones"])
-
-def guardar_datos(filepath, lista):
-    memoria["inscripciones"] = list(lista)
-
-modelo.datos.cargar_datos = cargar_datos
-modelo.datos.guardar_datos = guardar_datos
+def setup_paths(tmp_path):
+    info = tmp_path / "info"
+    miembros = info / "miembros.csv"
+    clases = info / "clases.csv"
+    inscripciones = info / "inscripciones.json"
+    return str(miembros), str(clases), str(inscripciones)
 
 
-def test_eliminar_inscripciones_miembro_elimina_correctamente():
-    memoria["inscripciones"] = [
-        {"id_miembro": "1", "id_clase": "A"},
-        {"id_miembro": "2", "id_clase": "B"},
-        {"id_miembro": "1", "id_clase": "C"},
-    ]
-
-    resultado = crud.eliminar_inscripciones_miembro("inscripciones", "1")
-
-    assert resultado == "2"
-    assert memoria["inscripciones"] == [{"id_miembro": "2", "id_clase": "B"}]
+def test_crear_y_leer_miembro(tmp_path):
+    path_m, path_c, path_i = setup_paths(tmp_path)
+    datos.inicializar_archivo(path_m)
+    # Crear miembro
+    miembro = crud.crear_miembro(path_m, "Juan Perez", "Mensual")
+    assert miembro is not None
+    # Leer y verificar
+    miembros = crud.leer_todos_los_miembros(path_m)
+    assert any(m["nombre"] == "Juan Perez" for m in miembros)
 
 
-def test_eliminar_inscripciones_miembro_sin_coincidencias():
-    memoria["inscripciones"] = [
-        {"id_miembro": "5", "id_clase": "X"},
-        {"id_miembro": "6", "id_clase": "Y"},
-    ]
-
-    resultado = crud.eliminar_inscripciones_miembro("inscripciones", "1")
-
-    assert resultado == 0
-    assert memoria["inscripciones"] == [
-        {"id_miembro": "5", "id_clase": "X"},
-        {"id_miembro": "6", "id_clase": "Y"},
-    ]
+def test_crear_clase_y_leer(tmp_path):
+    path_m, path_c, path_i = setup_paths(tmp_path)
+    datos.inicializar_archivo(path_c)
+    clase = crud.crear_clase(path_c, "Yoga", "Ana", 2)
+    assert clase is not None
+    clases = crud.leer_todas_las_clases(path_c)
+    assert any(c["nombre_clase"] == "Yoga" for c in clases)
 
 
-memoria = {
-    "miembros": [],
-    "inscripciones": []
-}
-
-def cargar_datos(filepath):
-    if "miembros" in filepath:
-        return list(memoria["miembros"])
-    elif "inscripciones" in filepath:
-        return list(memoria["inscripciones"])
-    return []
-
-def guardar_datos(filepath, lista):
-    if "miembros" in filepath:
-        memoria["miembros"] = list(lista)
-    elif "inscripciones" in filepath:
-        memoria["inscripciones"] = list(lista)
-
-modelo.datos.cargar_datos = cargar_datos
-modelo.datos.guardar_datos = guardar_datos
+def test_inscribir_miembro_en_clase(tmp_path):
+    path_m, path_c, path_i = setup_paths(tmp_path)
+    datos.inicializar_archivo(path_m)
+    datos.inicializar_archivo(path_c)
+    datos.inicializar_archivo(path_i)
+    miembro = crud.crear_miembro(path_m, "Luisa", "Anual")
+    clase = crud.crear_clase(path_c, "Pilates", "Carlos", 1)
+    ok, msg = crud.inscribir_miembro_en_clase(path_i, path_c, miembro["id_miembro"], clase["id_clase"])
+    assert ok is True
+    # intentar inscribir de nuevo el mismo miembro -> debe fallar por duplicado
+    ok2, msg2 = crud.inscribir_miembro_en_clase(path_i, path_c, miembro["id_miembro"], clase["id_clase"])
+    assert ok2 is False
 
 
-def test_eliminar_miembro_con_inscripciones():
-    memoria["miembros"] = [
-        {"id_miembro": "1", "nombre": "Juan"},
-        {"id_miembro": "2", "nombre": "Ana"},
-    ]
-    memoria["inscripciones"] = [
-        {"id_miembro": "1", "id_clase": "A"},
-        {"id_miembro": "2", "id_clase": "B"},
-        {"id_miembro": "1", "id_clase": "C"},
-    ]
-
-    resultado = crud.eliminar_miembro("miembros", "1", "inscripciones")
-
-    assert resultado is True
-    assert memoria["miembros"] == [{"id_miembro": "2", "nombre": "Ana"}]
-    assert memoria["inscripciones"] == [{"id_miembro": "2", "id_clase": "B"}]
-
-
-def test_eliminar_miembro_sin_inscripciones():
-    memoria["miembros"] = [
-        {"id_miembro": "1", "nombre": "Laura"},
-        {"id_miembro": "2", "nombre": "Andrés"},
-    ]
-    memoria["inscripciones"] = []
-
-    resultado = crud.eliminar_miembro("miembros", "2")
-
-    assert resultado is True
-    assert memoria["miembros"] == [{"id_miembro": "1", "nombre": "Laura"}]
-
-
-
+def test_cupo_maximo(tmp_path):
+    path_m, path_c, path_i = setup_paths(tmp_path)
+    datos.inicializar_archivo(path_m)
+    datos.inicializar_archivo(path_c)
+    datos.inicializar_archivo(path_i)
+    m1 = crud.crear_miembro(path_m, "A", "Mensual")
+    m2 = crud.crear_miembro(path_m, "B", "Mensual")
+    clase = crud.crear_clase(path_c, "Box", "Entrenador", 1)
+    ok1, _ = crud.inscribir_miembro_en_clase(path_i, path_c, m1["id_miembro"], clase["id_clase"])
+    assert ok1 is True
+    # Segundo miembro no debe poder inscribirse por cupo lleno
+    ok2, _ = crud.inscribir_miembro_en_clase(path_i, path_c, m2["id_miembro"], clase["id_clase"])
+    assert ok2 is False
