@@ -5,6 +5,7 @@ Punto de entrada de la aplicación.
 Maneja la interacción con el usuario (menús, entradas, salidas) usando la librería rich.
 """
 
+
 import os
 
 import crud

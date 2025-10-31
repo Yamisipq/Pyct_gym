@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1b05924e-34fb-4812-ad38-531d9ce3dd7c" name="Changes" comment="correción de lógica">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/info/inscripciones.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Controlador/crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/crud.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Modelo/datos.py" beforeDir="false" afterPath="$PROJECT_DIR$/datos.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Vista/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/crud_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/crud_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/datos_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/datos_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/main_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/main_test.py" afterDir="false" />
-    </list>
+    <list default="true" id="1b05924e-34fb-4812-ad38-531d9ce3dd7c" name="Changes" comment="Implementación cambios&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;logic/Controlador/crud.py&#10;#&#9;logic/Modelo/datos.py&#10;#&#9;logic/Vista/main.py&#10;#&#9;test/crud_test.py&#10;#&#9;test/datos_test.py&#10;#&#9;test/main_test.py" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,24 +45,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.crud.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Merging master",
-    "last_opened_file_path": "C:/Users/adso2/Desktop/Pyct_gym",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.crud.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/adso2/Desktop/Pyct_gym&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\adso2\Desktop\Pyct_gym" />
