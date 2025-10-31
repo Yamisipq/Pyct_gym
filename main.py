@@ -275,15 +275,34 @@ def menu_inscripciones():
             # --- Validaciones para Inscribir ---
             while True:
                 id_miembro = Prompt.ask("ID del miembro").strip()
-                if id_miembro: break
-                console.print("[red]Error:[/red] El ID del miembro no puede estar vacío. Intente de nuevo.")
+                if id_miembro:
+                    # Validar si el miembro existe antes de continuar
+                    miembro = crud.buscar_miembro_por_id(MIEMBROS_FILE, id_miembro)
+                    if miembro:
+                        break
+                    else:
+                        console.print(f"[red]Error:[/red] No existe ningún miembro con ID '{id_miembro}'. Intente de nuevo.")
+                else:
+                    console.print("[red]Error:[/red] El ID del miembro no puede estar vacío.")
 
             while True:
                 id_clase = Prompt.ask("ID de la clase").strip()
-                if id_clase: break
-                console.print("[red]Error:[/red] El ID de la clase no puede estar vacío. Intente de nuevo.")
+                if id_clase:
+                    clase = crud.buscar_clase_por_id(CLASES_FILE, id_clase)
+                    if clase:
+                        break
+                    else:
+                        console.print(f"[red]Error:[/red] No existe ninguna clase con ID '{id_clase}'. Intente de nuevo.")
+                else:
+                    console.print("[red]Error:[/red] El ID de la clase no puede estar vacío.")
 
-            exito, mensaje = crud.inscribir_miembro_en_clase(INSCRIPCIONES_FILE, CLASES_FILE, id_miembro, id_clase)
+            # --- Si pasa las validaciones, inscribir ---
+            exito, mensaje = crud.inscribir_miembro_en_clase(
+                INSCRIPCIONES_FILE,
+                CLASES_FILE,
+                id_miembro,
+                id_clase
+            )
             color = "green" if exito else "red"
             console.print(f"[{color}]{mensaje}[/{color}]")
             pausar()
@@ -292,12 +311,14 @@ def menu_inscripciones():
             # --- Validaciones para Dar de Baja ---
             while True:
                 id_miembro = Prompt.ask("ID del miembro").strip()
-                if id_miembro: break
+                if id_miembro:
+                    break
                 console.print("[red]Error:[/red] El ID del miembro no puede estar vacío. Intente de nuevo.")
 
             while True:
                 id_clase = Prompt.ask("ID de la clase").strip()
-                if id_clase: break
+                if id_clase:
+                    break
                 console.print("[red]Error:[/red] El ID de la clase no puede estar vacío. Intente de nuevo.")
 
             exito = crud.dar_baja_miembro_de_clase(INSCRIPCIONES_FILE, id_miembro, id_clase)
@@ -308,10 +329,11 @@ def menu_inscripciones():
             pausar()
 
         elif opcion == "3":
-            # --- Validación para Ver Miembros ---
+            # --- Ver Miembros inscritos en una clase ---
             while True:
                 id_clase = Prompt.ask("Ingrese ID de la clase").strip()
-                if id_clase: break
+                if id_clase:
+                    break
                 console.print("[red]Error:[/red] El ID de la clase no puede estar vacío. Intente de nuevo.")
 
             clase = crud.buscar_clase_por_id(CLASES_FILE, id_clase)
@@ -322,15 +344,17 @@ def menu_inscripciones():
             pausar()
 
         elif opcion == "4":
-            # --- Validación para Ver Clases ---
+            # --- Ver Clases inscritas por miembro ---
             while True:
                 id_miembro = Prompt.ask("Ingrese ID del miembro").strip()
-                if id_miembro: break
+                if id_miembro:
+                    break
                 console.print("[red]Error:[/red] El ID del miembro no puede estar vacío. Intente de nuevo.")
 
             clases = crud.listar_clases_inscritas_por_miembro(INSCRIPCIONES_FILE, CLASES_FILE, id_miembro)
             mostrar_tabla(clases, f"CLASES DE MIEMBRO ID {id_miembro}")
             pausar()
+
 
 # ============================================================
 # MENÚ PRINCIPAL
