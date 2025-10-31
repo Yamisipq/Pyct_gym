@@ -49,6 +49,13 @@ def inicializar_archivo(filepath: str) -> None:
             with open(filepath, mode='w', encoding='utf-8') as json_file:
                 json.dump([], json_file)
 
+def inicializar_archivos(*filepaths: str) -> None:
+    """
+    Inicializa una lista de archivos de datos usando inicializar_archivo.
+    """
+    for filepath in filepaths:
+        inicializar_archivo(filepath)
+
 def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
     """
     Carga los datos desde un archivo y los retorna como una lista de diccionarios.
