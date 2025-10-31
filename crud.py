@@ -6,6 +6,7 @@ Contiene todas las funciones para gestionar el gimnasio (CRUD de Miembros y Clas
 y gestión de Inscripciones).
 """
 
+
 from typing import Any, Dict, List, Optional
 import datos
 
