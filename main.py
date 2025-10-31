@@ -23,10 +23,6 @@ CLASES_FILE = os.path.join(INFO_DIR, "clases.csv")
 INSCRIPCIONES_FILE = os.path.join(INFO_DIR, "inscripciones.json")
 
 
-# ============================================================
-# FUNCIONES AUXILIARES
-# ============================================================
-
 def solicitar_tipo_suscripcion(permitir_vacio: bool = False) -> Optional[str]:
     """
     Muestra un menú para que el usuario elija el tipo de suscripción.
@@ -101,9 +97,7 @@ def mostrar_tabla(lista, titulo):
                 cupo_max
             )
 
-    # Lógica para otras tablas (Inscripciones sin detalles de Miembro/Clase) o el caso genérico
     else:
-        # Usar la lógica genérica original si no es Miembros o Clases
         for key in lista[0].keys():
             tabla.add_column(key, justify="center")
 
@@ -111,11 +105,6 @@ def mostrar_tabla(lista, titulo):
             tabla.add_row(*[str(v) for v in item.values()])
 
     console.print(tabla)
-
-
-# ============================================================
-# MENÚ DE MIEMBROS
-# ============================================================
 
 def menu_miembros():
     while True:
@@ -157,12 +146,10 @@ def menu_miembros():
                 pausar()
                 continue
 
-            # MEJORA DE USABILIDAD
             console.print(
                 f"\nEditando miembro: [cyan]{miembro['nombre']}[/cyan] (Suscripción actual: {miembro['tipo_suscripcion']})")
             nuevo_nombre = Prompt.ask("Nuevo nombre (dejar vacío para no cambiar)", default="")
 
-            # Se usa la función que permite seleccionar o no cambiar
             console.print("\n[bold]--- TIPO DE SUSCRIPCIÓN ---[/bold]")
             nuevo_tipo = solicitar_tipo_suscripcion(permitir_vacio=True)
 
@@ -188,10 +175,6 @@ def menu_miembros():
                 console.print("[red]No se encontró el miembro especificado.[/red]")
             pausar()
 
-
-# ============================================================
-# MENÚ DE CLASES
-# ============================================================
 
 def menu_clases():
     while True:
@@ -234,23 +217,8 @@ def menu_clases():
             pausar()
 
         elif opcion == "3":
-            # La función ver_cupos_disponibles en crud.py ya usa rich.table
             crud.ver_cupos_disponibles()
             pausar()
-
-
-# ============================================================
-# MENÚ DE INSCRIPCIONES
-# ============================================================
-
-from rich.panel import Panel
-
-
-# ... (otras importaciones y código)
-
-# ============================================================
-# MENÚ DE INSCRIPCIONES
-# ============================================================
 
 def menu_inscripciones():
     while True:
@@ -272,11 +240,9 @@ def menu_inscripciones():
             break
 
         elif opcion == "1":
-            # --- Validaciones para Inscribir ---
             while True:
                 id_miembro = Prompt.ask("ID del miembro").strip()
                 if id_miembro:
-                    # Validar si el miembro existe antes de continuar
                     miembro = crud.buscar_miembro_por_id(MIEMBROS_FILE, id_miembro)
                     if miembro:
                         break
@@ -296,7 +262,6 @@ def menu_inscripciones():
                 else:
                     console.print("[red]Error:[/red] El ID de la clase no puede estar vacío.")
 
-            # --- Si pasa las validaciones, inscribir ---
             exito, mensaje = crud.inscribir_miembro_en_clase(
                 INSCRIPCIONES_FILE,
                 CLASES_FILE,
@@ -308,7 +273,6 @@ def menu_inscripciones():
             pausar()
 
         elif opcion == "2":
-            # --- Validaciones para Dar de Baja ---
             while True:
                 id_miembro = Prompt.ask("ID del miembro").strip()
                 if id_miembro:
@@ -329,7 +293,6 @@ def menu_inscripciones():
             pausar()
 
         elif opcion == "3":
-            # --- Ver Miembros inscritos en una clase ---
             while True:
                 id_clase = Prompt.ask("Ingrese ID de la clase").strip()
                 if id_clase:
@@ -344,7 +307,6 @@ def menu_inscripciones():
             pausar()
 
         elif opcion == "4":
-            # --- Ver Clases inscritas por miembro ---
             while True:
                 id_miembro = Prompt.ask("Ingrese ID del miembro").strip()
                 if id_miembro:
@@ -354,11 +316,6 @@ def menu_inscripciones():
             clases = crud.listar_clases_inscritas_por_miembro(INSCRIPCIONES_FILE, CLASES_FILE, id_miembro)
             mostrar_tabla(clases, f"CLASES DE MIEMBRO ID {id_miembro}")
             pausar()
-
-
-# ============================================================
-# MENÚ PRINCIPAL
-# ============================================================
 
 def menu_principal():
     while True:
@@ -385,13 +342,7 @@ def menu_principal():
         elif opcion == "3":
             menu_inscripciones()
 
-
-# ============================================================
-# PUNTO DE ENTRADA
-# ============================================================
-
 if __name__ == "__main__":
-    # Crear carpeta info/ si no existe
     os.makedirs(INFO_DIR, exist_ok=True)
 
     # Llama a la nueva función en datos.py

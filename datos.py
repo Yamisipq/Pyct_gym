@@ -10,7 +10,6 @@ import json
 import os
 from typing import Any, Dict, List
 
-# Definición de campos para las tres entidades
 CAMPOS_MIEMBROS = ['id_miembro', 'nombre', 'tipo_suscripcion']
 CAMPOS_CLASES = ['id_clase', 'nombre_clase', 'instructor',  'cupo_maximo']
 
@@ -33,7 +32,6 @@ def inicializar_archivo(filepath: str) -> None:
         os.makedirs(directorio)
 
     if not os.path.exists(filepath):
-        # Determinamos los campos según el nombre del archivo
         campos = []
         if 'miembros.csv' in filepath:
             campos = CAMPOS_MIEMBROS
@@ -45,7 +43,6 @@ def inicializar_archivo(filepath: str) -> None:
                 writer = csv.DictWriter(csv_file, fieldnames=campos)
                 writer.writeheader()
         elif filepath.endswith('.json'):
-            # Los archivos JSON de datos (como Inscripciones) siempre comienzan vacíos
             with open(filepath, mode='w', encoding='utf-8') as json_file:
                 json.dump([], json_file)
 
@@ -80,7 +77,6 @@ def cargar_datos(filepath: str) -> List[Dict[str, Any]]:
                 datos = json.load(json_file)
                 return datos if isinstance(datos, list) else []
     except (FileNotFoundError, json.JSONDecodeError):
-        # Captura errores comunes de lectura y retorna lista vacía
         return []
 
 def guardar_datos(filepath: str, datos: List[Dict[str, Any]]) -> None:
@@ -94,7 +90,6 @@ def guardar_datos(filepath: str, datos: List[Dict[str, Any]]) -> None:
     :return: None
     :rtype: None
     """
-    # Determinamos los campos según el nombre del archivo (solo necesario para CSV)
     campos = []
     if 'miembros.csv' in filepath:
         campos = CAMPOS_MIEMBROS

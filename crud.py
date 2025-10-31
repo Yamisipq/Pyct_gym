@@ -24,10 +24,6 @@ INSCRIPCIONES_FILE = os.path.join(INFO_DIR, "inscripciones.json")
 
 VALID_TIPOS_SUSCRIPCION = ("Mensual", "Anual")
 
-# ============================================================
-# UTILIDAD GENERAL
-# ============================================================
-
 def generar_nuevo_id(entidad: str, lista: List[Dict[str, Any]]) -> str:
     """
     Genera un nuevo ID autoincremental para Miembros o Clases.
@@ -46,10 +42,6 @@ def generar_nuevo_id(entidad: str, lista: List[Dict[str, Any]]) -> str:
             pass
 
     return str(max_id + 1)
-
-# ============================================================
-# CRUD DE MIEMBROS
-# ============================================================
 
 def crear_miembro(filepath: str, nombre: str, tipo_suscripcion: str) -> Optional[Dict[str, Any]]:
     """
@@ -131,10 +123,6 @@ def eliminar_miembro(filepath_miembros: str, id_miembro: str, filepath_inscripci
 
     return False
 
-# ============================================================
-# CRUD DE CLASES
-# ============================================================
-
 def crear_clase(filepath: str, nombre_clase: str, instructor: str, cupo_maximo: int) -> Optional[Dict[str, Any]]:
     """(CREATE) Agrega una nueva clase."""
     clases = datos.cargar_datos(filepath)
@@ -172,10 +160,6 @@ def buscar_clase_por_id(filepath: str, id_clase: str) -> Optional[Dict[str, Any]
         if clase.get('id_clase') == id_clase:
             return clase
     return None
-
-# ============================================================
-# INSCRIPCIONES
-# ============================================================
 
 def inscribir_miembro_en_clase(filepath_inscripciones: str, filepath_clases: str,
                                id_miembro: str, id_clase: str) -> Tuple[bool, str]:
@@ -227,10 +211,6 @@ def listar_clases_inscritas_por_miembro(filepath_inscripciones: str, filepath_cl
     clases_todas = datos.cargar_datos(filepath_clases)
     ids_clases = [i['id_clase'] for i in inscripciones if i['id_miembro'] == id_miembro]
     return [c for c in clases_todas if c.get('id_clase') in ids_clases]
-
-# ============================================================
-# INFORMES
-# ============================================================
 
 def ver_cupos_disponibles():
     """Muestra los cupos disponibles por clase."""
